@@ -124,7 +124,7 @@ Respond with a JSON object ONLY:
 {
   "title": "A short evocative name for this scenario (max 6 words)",
   "category": "one of: Growth, Transformation, Stability, Adventure, Purpose",
-  "scenario_text": "A rich 4-5 paragraph narrative in second person ('you') set in ${targetMonth} ${targetYear}. Use **bold** for key achievements. Reference the actual artifacts by name. Include two sections: **Horizon 1 (${midDate}):** what has shifted by then, and **Horizon 2 (${targetMonth} ${targetYear}):** where you've arrived. Be specific with dates, places, and names from their situation.",
+  "scenario_text": "A vivid 3-4 paragraph narrative in second person ('you') set in ${targetMonth} ${targetYear}. Use **bold** for key achievements. Reference the actual artifacts by name. Include two short sections: **Horizon 1 (${midDate}):** what has shifted by then, and **Horizon 2 (${targetMonth} ${targetYear}):** where you've arrived. Be specific with dates, places, and names from their situation.",
   "action_plan": [
     {
       "title": "Action item title",
@@ -137,7 +137,7 @@ Respond with a JSON object ONLY:
 }
 
 Rules:
-- action_plan: 4-5 items with SPECIFIC month+year deadlines based on today being ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+- action_plan: exactly 4 items with SPECIFIC month+year deadlines based on today being ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - scenario_text must reference ALL 3 selected artifacts
 - Use **bold** for key milestones in scenario_text
 - Be specific to THIS person, not generic

@@ -10,13 +10,13 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // Retry the model call + parse so a transient hiccup or a non-JSON reply
 // doesn't fail the whole generation for the user.
-async function generateScenarioWithRetry(prompt: string, attempts = 2) {
+async function generateScenarioWithRetry(prompt: string, attempts = 1) {
   let lastError: unknown
   for (let i = 0; i < attempts; i++) {
     try {
       const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2800,
         messages: [{ role: 'user', content: prompt }],
       })
       const text = message.content[0].type === 'text' ? message.content[0].text : ''

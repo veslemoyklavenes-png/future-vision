@@ -138,8 +138,13 @@ export default function GeneratorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: { ...answers, values: resolvedValues() }, selectedArtifacts }),
       })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error ?? 'Could not generate the scenario. Please try again.')
+      const raw = await res.text()
+      let data: { error?: string; id?: string } = {}
+      try { data = JSON.parse(raw) } catch { /* non-JSON (e.g. platform timeout page) */ }
+      if (!res.ok || !data.id) {
+        const snippet = raw ? ` — ${raw.slice(0, 140)}` : ''
+        throw new Error(data.error ?? `Request failed (HTTP ${res.status})${snippet}`)
+      }
       router.push(`/scenarios/${data.id}`)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
