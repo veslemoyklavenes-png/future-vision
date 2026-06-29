@@ -1,26 +1,120 @@
 export const dynamic = 'force-dynamic'
-import { BookOpen, Lightbulb, Heart, TrendingUp } from 'lucide-react'
+import { Landmark, GraduationCap, BookOpen, Lightbulb, FileText, ExternalLink } from 'lucide-react'
 
-const resources = [
+interface Resource {
+  title: string
+  description: string
+  tags: string[]
+  url?: string
+}
+
+interface Section {
+  icon: typeof Landmark
+  title: string
+  items: Resource[]
+}
+
+const sections: Section[] = [
   {
-    icon: Lightbulb,
-    title: 'How to use Stories for the Future',
-    description: 'Learn how to get the most out of your scenario generator. Create multiple scenarios, track your action plan, and use the reflection feature after 30 days.',
+    icon: Landmark,
+    title: 'Organizations',
+    items: [
+      {
+        title: 'Institute for the Future (IFTF)',
+        description: 'A nonprofit research organization helping people think systematically about the future. Known for their Foresight Essentials toolkit and future-focused research.',
+        tags: ['Research', 'Foresight Tools'],
+        url: 'https://www.iftf.org',
+      },
+      {
+        title: 'Copenhagen Institute for Futures Studies',
+        description: "One of the world's leading futures studies organizations, offering research, scenarios, and strategic foresight services.",
+        tags: ['Research', 'Scenarios'],
+        url: 'https://cifs.dk',
+      },
+      {
+        title: 'World Futures Studies Federation',
+        description: 'A global network of practicing futurists and futures studies scholars promoting futures thinking worldwide.',
+        tags: ['Community', 'Academic'],
+        url: 'https://wfsf.org',
+      },
+    ],
   },
   {
-    icon: Heart,
-    title: 'The power of writing your future',
-    description: 'Research shows that people who write down their goals and visualize their future are significantly more likely to achieve them. This tool builds on that insight.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Making your action plan work',
-    description: 'Check off your action items regularly, and break big tasks into the specific sub-steps listed. Consistency over intensity.',
+    icon: GraduationCap,
+    title: 'Learning & Courses',
+    items: [
+      {
+        title: 'School of International Futures',
+        description: 'Offers futures literacy programs and strategic foresight training for organizations and governments.',
+        tags: ['Training', 'Government'],
+        url: 'https://soif.org.uk',
+      },
+      {
+        title: 'Futures Thinking Specialization (Coursera)',
+        description: 'A comprehensive online course series on futures thinking methods and applications from IFTF.',
+        tags: ['Online Course', 'Beginner-Friendly'],
+        url: 'https://www.coursera.org/specializations/futures-thinking',
+      },
+      {
+        title: 'Foresight University',
+        description: 'Resources and community for learning about technological foresight and long-term thinking.',
+        tags: ['Technology', 'Community'],
+      },
+    ],
   },
   {
     icon: BookOpen,
-    title: 'Reflection: the missing step',
-    description: 'After 30 days, come back to your scenario and use the Reflection feature. Marking what came true – and what surprised you – deepens the learning and builds momentum.',
+    title: 'Books & Reading',
+    items: [
+      {
+        title: 'Imaginable by Jane McGonigal',
+        description: "A guide to using simulation and imagination to prepare for the future, based on IFTF's research methods.",
+        tags: ['Simulation', 'Practical Guide'],
+      },
+      {
+        title: 'The Art of the Long View by Peter Schwartz',
+        description: 'The classic introduction to scenario planning from the pioneer at Shell and Global Business Network.',
+        tags: ['Scenario Planning', 'Classic'],
+      },
+      {
+        title: 'Futures Thinking Playbook (UN SDG:Learn)',
+        description: 'A practical toolkit with methods for applying futures thinking to everyday decisions and planning.',
+        tags: ['Toolkit', 'Practical'],
+      },
+    ],
+  },
+  {
+    icon: Lightbulb,
+    title: 'Tools & Frameworks',
+    items: [
+      {
+        title: 'Futures Wheel',
+        description: 'A structured brainstorming method for identifying direct and indirect consequences of trends or events.',
+        tags: ['Method', 'Free'],
+      },
+      {
+        title: 'Three Horizons Framework',
+        description: 'A simple framework for thinking about transformation over time, widely used in strategic foresight.',
+        tags: ['Framework', 'Strategy'],
+      },
+      {
+        title: 'Causal Layered Analysis (CLA)',
+        description: 'A futures research method developed by Sohail Inayatullah for exploring deeper layers of change.',
+        tags: ['Method', 'Advanced'],
+      },
+    ],
+  },
+  {
+    icon: FileText,
+    title: 'Articles & Papers',
+    items: [
+      {
+        title: 'OECD Strategic Foresight',
+        description: "OECD's hub for strategic foresight, futures literacy, and anticipatory governance resources.",
+        tags: ['Government', 'Policy'],
+        url: 'https://www.oecd.org/en/about/programmes/strategic-foresight.html',
+      },
+    ],
   },
 ]
 
@@ -28,19 +122,54 @@ export default function ResourcesPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <h1 className="text-3xl font-serif text-ink mb-2">Resources</h1>
-      <p className="text-ink-muted mb-8">Guidance to help you get the most from Stories for the Future.</p>
+      <p className="text-ink-muted mb-10 leading-relaxed">
+        Futures thinking is a real, practiced discipline — not fortune-telling. These are the
+        organizations, courses, books, and methods behind it, if you&apos;d like to go deeper.
+      </p>
 
-      <div className="space-y-4">
-        {resources.map(({ icon: Icon, title, description }) => (
-          <div key={title} className="bg-card rounded-xl border border-border p-6 flex gap-4 shadow-sm">
-            <div className="w-10 h-10 rounded-lg bg-sage-light flex items-center justify-center shrink-0">
-              <Icon size={20} className="text-sage-deep" />
+      <div className="space-y-12">
+        {sections.map(({ icon: SectionIcon, title, items }) => (
+          <section key={title}>
+            <div className="flex items-center gap-2 mb-4">
+              <SectionIcon size={22} className="text-sage-deep" />
+              <h2 className="font-serif text-2xl text-ink">{title}</h2>
             </div>
-            <div>
-              <h2 className="font-serif text-lg text-ink mb-1">{title}</h2>
-              <p className="text-sm text-ink-muted leading-relaxed">{description}</p>
+            <div className="space-y-3">
+              {items.map(item => {
+                const inner = (
+                  <>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <h3 className="font-semibold text-ink">{item.title}</h3>
+                      {item.url && <ExternalLink size={14} className="text-sage-deep shrink-0" />}
+                    </div>
+                    <p className="text-sm text-ink-muted leading-relaxed mb-3">{item.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {item.tags.map(tag => (
+                        <span key={tag} className="text-xs text-ink-muted border border-border rounded-full px-3 py-0.5">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )
+                return item.url ? (
+                  <a
+                    key={item.title}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block bg-card rounded-xl border border-border p-5 shadow-sm transition-colors hover:border-sage-mid"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={item.title} className="bg-card rounded-xl border border-border p-5 shadow-sm">
+                    {inner}
+                  </div>
+                )
+              })}
             </div>
-          </div>
+          </section>
         ))}
       </div>
     </div>
