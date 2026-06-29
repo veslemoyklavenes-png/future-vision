@@ -10,7 +10,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // Retry the model call + parse so a transient hiccup or a non-JSON reply
 // doesn't fail the whole generation for the user.
-async function generateScenarioWithRetry(prompt: string, attempts = 3) {
+async function generateScenarioWithRetry(prompt: string, attempts = 2) {
   let lastError: unknown
   for (let i = 0; i < attempts; i++) {
     try {

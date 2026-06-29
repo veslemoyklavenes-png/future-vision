@@ -10,13 +10,13 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // Try the model call + parse a few times — transient API hiccups and the
 // occasional non-JSON reply shouldn't surface as a hard failure to the user.
-async function generateArtifactsWithRetry(prompt: string, attempts = 3) {
+async function generateArtifactsWithRetry(prompt: string, attempts = 2) {
   let lastError: unknown
   for (let i = 0; i < attempts; i++) {
     try {
       const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }],
       })
       const text = message.content[0].type === 'text' ? message.content[0].text : '[]'

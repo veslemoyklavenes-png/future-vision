@@ -63,7 +63,7 @@ ${personalSection ? `- ${personalSection}` : ''}
 - Focus area: ${answers.focusArea}
 - Time horizon: ${answers.timeframeYears} year(s) from now = ${targetMonth} ${targetYear}
 
-Generate EXACTLY 8 diverse future artifacts that could exist in ${targetMonth} ${targetYear} for this person. Make them specific, evocative, and grounded in their actual situation and values. Mix different types.
+Generate EXACTLY 6 diverse future artifacts that could exist in ${targetMonth} ${targetYear} for this person. Make them specific, evocative, and grounded in their actual situation and values. Mix different types. Keep each "content" to 1-2 punchy sentences — vivid but concise.
 
 Respond with a JSON array ONLY — no other text:
 [
@@ -85,7 +85,7 @@ Use these types (at least one of each of the first two, then vary the rest):
 - Course or workshop they launched
 - Review of their work/product/service
 
-All 8 must feel like genuine artifacts from ${targetMonth} ${targetYear}, not vague descriptions. Be concrete and specific — real-sounding names, numbers, and details rather than generic statements. Do NOT assume the person's gender, a spouse/partner, or children unless stated in their profile above.`
+All 6 must feel like genuine artifacts from ${targetMonth} ${targetYear}, not vague descriptions. Be concrete and specific — real-sounding names, numbers, and details rather than generic statements. Do NOT assume the person's gender, a spouse/partner, or children unless stated in their profile above.`
 }
 
 export function buildScenarioPrompt(answers: WizardAnswers, selectedArtifacts: FutureArtifact[]): string {
