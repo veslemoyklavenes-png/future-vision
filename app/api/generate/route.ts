@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase-server'
-import { buildScenarioPrompt, WizardAnswers } from '@/lib/prompts'
+import { buildScenarioPrompt, WizardAnswers, FutureArtifact } from '@/lib/prompts'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -10,9 +10,9 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const answers: WizardAnswers = await req.json()
+  const { answers, selectedArtifacts }: { answers: WizardAnswers; selectedArtifacts: FutureArtifact[] } = await req.json()
 
-  const prompt = buildScenarioPrompt(answers)
+  const prompt = buildScenarioPrompt(answers, selectedArtifacts)
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
@@ -21,16 +21,11 @@ export async function POST(req: NextRequest) {
   })
 
   const text = message.content[0].type === 'text' ? message.content[0].text : ''
-
-  // Extract JSON from the response
   const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
-  }
+  if (!jsonMatch) return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
 
   const parsed = JSON.parse(jsonMatch[0])
 
-  // Save scenario
   const { data: scenario, error: scenarioError } = await supabase
     .from('scenarios')
     .insert({
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
       title: parsed.title,
       category: parsed.category,
       scenario_text: parsed.scenario_text,
-      future_artifacts: parsed.future_artifacts ?? [],
+      future_artifacts: selectedArtifacts,
       wizard_answers: answers,
     })
     .select('id')
@@ -48,7 +43,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save scenario' }, { status: 500 })
   }
 
-  // Save action items
   if (parsed.action_plan?.length) {
     await supabase.from('action_items').insert(
       parsed.action_plan.map((item: { title: string; description: string; timeline: string; priority: string; sub_tasks: string[] }, i: number) => ({

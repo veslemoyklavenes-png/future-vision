@@ -6,34 +6,33 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Sparkles, Loader2, Check } from 'lucide-react'
+import type { FutureArtifact } from '@/lib/prompts'
 
 const VALUES = [
-  'Autonomy & Freedom',
-  'Deep Impact',
-  'Creative Expression',
-  'Financial Stability',
-  'Community & Connection',
-  'Intellectual Challenge',
-  'Calm & Well-being',
-  'Other',
+  'Autonomy & Freedom', 'Deep Impact', 'Creative Expression',
+  'Financial Stability', 'Community & Connection', 'Intellectual Challenge',
+  'Calm & Well-being', 'Other',
 ]
-
 const FOCUS_AREAS = [
-  'Career & Business',
-  'Creative Life',
-  'Health & Well-being',
-  'Relationships',
-  'Financial Freedom',
-  'Personal Growth',
+  'Career & Business', 'Creative Life', 'Health & Well-being',
+  'Relationships', 'Financial Freedom', 'Personal Growth',
+]
+const TIMEFRAMES = [
+  { label: '1 year', value: 1 }, { label: '2 years', value: 2 },
+  { label: '3 years', value: 3 }, { label: '5 years', value: 5 },
 ]
 
-const TIMEFRAMES = [
-  { label: '1 year', value: 1 },
-  { label: '2 years', value: 2 },
-  { label: '3 years', value: 3 },
-  { label: '5 years', value: 5 },
-]
+const ARTIFACT_COLORS: Record<string, string> = {
+  'Social Media Post': 'border-pink-200 bg-pink-50',
+  'News Article': 'border-blue-200 bg-blue-50',
+  'Podcast Episode': 'border-orange-200 bg-orange-50',
+  'Book excerpt or chapter title they\'ve written': 'border-green-200 bg-green-50',
+  'Email or message they sent or received': 'border-slate-200 bg-slate-50',
+  'Award or recognition announcement': 'border-yellow-200 bg-yellow-50',
+  'Course or workshop they launched': 'border-purple-200 bg-purple-50',
+  'Review of their work/product/service': 'border-teal-200 bg-teal-50',
+}
 
 interface Answers {
   values: string[]
@@ -53,12 +52,16 @@ const initialAnswers: Answers = {
   timeframeYears: 3,
 }
 
-const TOTAL_STEPS = 5
+type Phase = 'wizard' | 'pick-artifacts' | 'generating'
+const WIZARD_STEPS = 5
 
 export default function GeneratorPage() {
   const router = useRouter()
+  const [phase, setPhase] = useState<Phase>('wizard')
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState<Answers>(initialAnswers)
+  const [artifacts, setArtifacts] = useState<FutureArtifact[]>([])
+  const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -67,55 +70,158 @@ export default function GeneratorPage() {
       ...prev,
       values: prev.values.includes(v)
         ? prev.values.filter(x => x !== v)
-        : prev.values.length < 3
-        ? [...prev.values, v]
-        : prev.values,
+        : prev.values.length < 3 ? [...prev.values, v] : prev.values,
     }))
+  }
+
+  function toggleArtifact(id: string) {
+    setSelected(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id)
+      : prev.length < 3 ? [...prev, id] : prev
+    )
   }
 
   function canAdvance() {
     if (step === 1) return answers.values.length > 0
-    if (step === 2) return true // personal details is optional
+    if (step === 2) return true
     if (step === 3) return answers.currentSituation.trim().length > 20
     if (step === 4) return answers.futureVision.trim().length > 20
     if (step === 5) return answers.focusArea !== '' && answers.timeframeYears > 0
     return false
   }
 
-  async function generate() {
+  async function generateArtifacts() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/generate', {
+      const res = await fetch('/api/generate-artifacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(answers),
       })
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
-      router.push(`/scenarios/${data.id}`)
+      setArtifacts(data.artifacts)
+      setPhase('pick-artifacts')
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.')
+      setError(e instanceof Error ? e.message : 'Something went wrong.')
+    } finally {
       setLoading(false)
     }
   }
 
+  async function generateScenario() {
+    setPhase('generating')
+    setError('')
+    try {
+      const selectedArtifacts = artifacts.filter(a => selected.includes(a.id))
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers, selectedArtifacts }),
+      })
+      if (!res.ok) throw new Error(await res.text())
+      const data = await res.json()
+      router.push(`/scenarios/${data.id}`)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Something went wrong.')
+      setPhase('pick-artifacts')
+    }
+  }
+
+  // ── Artifact picker phase ──────────────────────────────────────────
+  if (phase === 'pick-artifacts') {
+    const targetYear = new Date().getFullYear() + answers.timeframeYears
+    return (
+      <div className="min-h-screen flex flex-col items-center py-12 px-4 bg-gradient-to-br from-slate-100 to-indigo-50">
+        <div className="w-full max-w-3xl">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-slate-800">Choose Your Future Artifacts</h1>
+            <p className="text-slate-500 mt-2">
+              These are glimpses of your life in <strong>{targetYear}</strong>.
+              Pick <strong>3</strong> that resonate most — they will shape your scenario.
+            </p>
+            <p className="text-sm text-indigo-600 mt-1 font-medium">
+              {selected.length} / 3 selected
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+            {artifacts.map(artifact => {
+              const isSelected = selected.includes(artifact.id)
+              const colorClass = ARTIFACT_COLORS[artifact.type] ?? 'border-slate-200 bg-white'
+              return (
+                <button
+                  key={artifact.id}
+                  onClick={() => toggleArtifact(artifact.id)}
+                  disabled={!isSelected && selected.length >= 3}
+                  className={cn(
+                    'text-left p-4 rounded-xl border-2 transition-all relative',
+                    isSelected ? 'border-indigo-500 bg-indigo-50 shadow-md' : colorClass,
+                    !isSelected && selected.length >= 3 && 'opacity-40 cursor-not-allowed'
+                  )}
+                >
+                  {isSelected && (
+                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
+                      <Check size={14} className="text-white" />
+                    </div>
+                  )}
+                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1">
+                    {artifact.type}
+                  </span>
+                  <h3 className="font-semibold text-slate-800 text-sm mb-1">{artifact.title}</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">{artifact.content}</p>
+                </button>
+              )
+            })}
+          </div>
+
+          {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2 mb-4">{error}</p>}
+
+          <div className="flex justify-between">
+            <button onClick={() => setPhase('wizard')} className="text-slate-400 hover:text-slate-600 text-sm">
+              ← Back to wizard
+            </button>
+            <Button
+              onClick={generateScenario}
+              disabled={selected.length < 3}
+              className="bg-indigo-600 hover:bg-indigo-700 gap-2 px-8"
+            >
+              <Sparkles size={16} /> Generate my scenario
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Generating phase ───────────────────────────────────────────────
+  if (phase === 'generating') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-indigo-50">
+        <div className="text-center">
+          <Loader2 size={48} className="animate-spin text-indigo-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-slate-700 mb-2">Building your future scenario…</h2>
+          <p className="text-slate-400 text-sm">Weaving your chosen artifacts into a personal narrative. About 20 seconds.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Wizard phase ───────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-12 px-4 bg-gradient-to-br from-slate-100 to-indigo-50">
       <h1 className="text-2xl font-bold text-slate-800 mb-8">Future Scenario Generator</h1>
 
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
 
-        {/* Step 1: Values */}
         {step === 1 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>🧭</span> Inner Compass
             </div>
             <p className="text-slate-500 mb-6 text-sm leading-relaxed">
-              Before we look to the future, let&apos;s ground ourselves in the now. A truly sustainable
-              future is built on self-awareness. These next few questions will help us create a
-              scenario that&apos;s not just ambitious, but deeply aligned with who you are.
+              Before we look to the future, let&apos;s ground ourselves in the now. Choose the values that guide your work and life.
             </p>
             <div className="border rounded-xl p-5">
               <p className="text-sm font-medium text-slate-700 mb-4">
@@ -123,16 +229,12 @@ export default function GeneratorPage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {VALUES.map(v => (
-                  <button
-                    key={v}
-                    onClick={() => toggleValue(v)}
-                    className={cn(
-                      'px-4 py-2 rounded-full border text-sm transition-colors',
+                  <button key={v} onClick={() => toggleValue(v)}
+                    className={cn('px-4 py-2 rounded-full border text-sm transition-colors',
                       answers.values.includes(v)
                         ? 'bg-indigo-600 border-indigo-600 text-white'
                         : 'border-slate-200 text-slate-700 hover:border-indigo-300'
-                    )}
-                  >
+                    )}>
                     {v}
                   </button>
                 ))}
@@ -141,61 +243,41 @@ export default function GeneratorPage() {
           </div>
         )}
 
-        {/* Step 2: Personal details (optional) */}
         {step === 2 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>👤</span> About You <span className="text-slate-400 font-normal text-sm ml-1">(optional)</span>
             </div>
             <p className="text-slate-500 mb-6 text-sm leading-relaxed">
-              Adding personal context helps the AI create a more tailored scenario. All fields are optional – share only what feels relevant.
+              Personal context helps the AI create a more tailored scenario. All fields are optional.
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Age</label>
-                <Input
-                  placeholder="e.g. 38"
-                  value={answers.personalDetails.age}
-                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, age: e.target.value } }))}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Location</label>
-                <Input
-                  placeholder="e.g. Oslo, Norway"
-                  value={answers.personalDetails.location}
-                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, location: e.target.value } }))}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Relationship status</label>
-                <Input
-                  placeholder="e.g. Married, Single"
-                  value={answers.personalDetails.relationship}
-                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, relationship: e.target.value } }))}
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Children</label>
-                <Input
-                  placeholder="e.g. 2 kids, ages 8 and 11"
-                  value={answers.personalDetails.children}
-                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, children: e.target.value } }))}
-                />
-              </div>
+              {[
+                { label: 'Age', key: 'age', placeholder: 'e.g. 38' },
+                { label: 'Location', key: 'location', placeholder: 'e.g. Oslo, Norway' },
+                { label: 'Relationship status', key: 'relationship', placeholder: 'e.g. Married' },
+                { label: 'Children', key: 'children', placeholder: 'e.g. 2 kids, ages 8 and 11' },
+              ].map(({ label, key, placeholder }) => (
+                <div key={key}>
+                  <label className="text-xs font-medium text-slate-600 block mb-1">{label}</label>
+                  <Input
+                    placeholder={placeholder}
+                    value={answers.personalDetails[key as keyof typeof answers.personalDetails]}
+                    onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, [key]: e.target.value } }))}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Step 3: Current situation */}
         {step === 3 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>📍</span> Your Current Situation
             </div>
             <p className="text-slate-500 mb-6 text-sm leading-relaxed">
-              Describe where you are right now. What&apos;s going well? What challenges are you
-              navigating? What projects or roles are you in?
+              Describe where you are right now. What&apos;s going well? What challenges are you navigating?
             </p>
             <Textarea
               value={answers.currentSituation}
@@ -207,15 +289,13 @@ export default function GeneratorPage() {
           </div>
         )}
 
-        {/* Step 4: Future vision */}
         {step === 4 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>✨</span> Your Future Vision
             </div>
             <p className="text-slate-500 mb-6 text-sm leading-relaxed">
-              Dream a little. What does your ideal life look like in a few years? What have you
-              created, achieved, or become? How does it feel to live this life?
+              Dream a little. What does your ideal life look like? What have you created, achieved, or become?
             </p>
             <Textarea
               value={answers.futureVision}
@@ -227,30 +307,27 @@ export default function GeneratorPage() {
           </div>
         )}
 
-        {/* Step 5: Focus & timeframe */}
         {step === 5 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>🎯</span> Focus & Timeframe
             </div>
             <p className="text-slate-500 mb-6 text-sm leading-relaxed">
-              Let&apos;s calibrate the scenario. What&apos;s your main focus area, and how far into the
-              future should we look?
+              What&apos;s your main focus, and how far into the future should we look?
+              {answers.timeframeYears > 0 && (
+                <span className="text-indigo-600 font-medium">
+                  {' '}Target: {new Date().getFullYear() + answers.timeframeYears}
+                </span>
+              )}
             </p>
             <div className="mb-6">
               <p className="text-sm font-medium text-slate-700 mb-3">Main focus area</p>
               <div className="flex flex-wrap gap-2">
                 {FOCUS_AREAS.map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setAnswers(prev => ({ ...prev, focusArea: f }))}
-                    className={cn(
-                      'px-4 py-2 rounded-full border text-sm transition-colors',
-                      answers.focusArea === f
-                        ? 'bg-indigo-600 border-indigo-600 text-white'
-                        : 'border-slate-200 text-slate-700 hover:border-indigo-300'
-                    )}
-                  >
+                  <button key={f} onClick={() => setAnswers(prev => ({ ...prev, focusArea: f }))}
+                    className={cn('px-4 py-2 rounded-full border text-sm transition-colors',
+                      answers.focusArea === f ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-200 text-slate-700 hover:border-indigo-300'
+                    )}>
                     {f}
                   </button>
                 ))}
@@ -260,16 +337,10 @@ export default function GeneratorPage() {
               <p className="text-sm font-medium text-slate-700 mb-3">Timeframe</p>
               <div className="flex gap-2">
                 {TIMEFRAMES.map(t => (
-                  <button
-                    key={t.value}
-                    onClick={() => setAnswers(prev => ({ ...prev, timeframeYears: t.value }))}
-                    className={cn(
-                      'px-4 py-2 rounded-full border text-sm transition-colors',
-                      answers.timeframeYears === t.value
-                        ? 'bg-indigo-600 border-indigo-600 text-white'
-                        : 'border-slate-200 text-slate-700 hover:border-indigo-300'
-                    )}
-                  >
+                  <button key={t.value} onClick={() => setAnswers(prev => ({ ...prev, timeframeYears: t.value }))}
+                    className={cn('px-4 py-2 rounded-full border text-sm transition-colors',
+                      answers.timeframeYears === t.value ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-200 text-slate-700 hover:border-indigo-300'
+                    )}>
                     {t.label}
                   </button>
                 ))}
@@ -281,40 +352,27 @@ export default function GeneratorPage() {
         {loading && (
           <div className="mt-8 flex flex-col items-center gap-3 text-slate-500">
             <Loader2 size={32} className="animate-spin text-indigo-500" />
-            <p className="text-sm">Generating your scenario and future artifacts… ~20 seconds</p>
+            <p className="text-sm">Generating your future artifacts… ~15 seconds</p>
           </div>
         )}
 
-        {error && (
-          <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2">{error}</p>
-        )}
+        {error && <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2">{error}</p>}
 
         {!loading && (
           <div className="flex items-center justify-between mt-8">
-            <button
-              onClick={() => setStep(s => s - 1)}
-              className="text-slate-400 hover:text-slate-600 text-sm disabled:opacity-30"
-              disabled={step === 1}
-            >
+            <button onClick={() => setStep(s => s - 1)} disabled={step === 1}
+              className="text-slate-400 hover:text-slate-600 text-sm disabled:opacity-30">
               Back
             </button>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-400">{step} / {TOTAL_STEPS}</span>
-              {step < TOTAL_STEPS ? (
-                <Button
-                  onClick={() => setStep(s => s + 1)}
-                  disabled={!canAdvance()}
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                >
+              <span className="text-sm text-slate-400">{step} / {WIZARD_STEPS}</span>
+              {step < WIZARD_STEPS ? (
+                <Button onClick={() => setStep(s => s + 1)} disabled={!canAdvance()} className="bg-indigo-600 hover:bg-indigo-700">
                   Next
                 </Button>
               ) : (
-                <Button
-                  onClick={generate}
-                  disabled={!canAdvance()}
-                  className="bg-indigo-600 hover:bg-indigo-700 gap-2"
-                >
-                  <Sparkles size={16} /> Generate scenario
+                <Button onClick={generateArtifacts} disabled={!canAdvance()} className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+                  <Sparkles size={16} /> Generate artifacts
                 </Button>
               )}
             </div>

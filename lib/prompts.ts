@@ -14,7 +14,80 @@ export interface WizardAnswers {
   timeframeYears: number
 }
 
-export function buildScenarioPrompt(answers: WizardAnswers): string {
+export interface FutureArtifact {
+  id: string
+  type: string
+  title: string
+  content: string
+}
+
+function getTargetDate(yearsFromNow: number): { targetMonth: string; targetYear: number; startYear: number; midDate: string } {
+  const now = new Date()
+  const targetYear = now.getFullYear() + yearsFromNow
+  const months = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December']
+  const targetMonth = months[now.getMonth()]
+  const midYear = now.getFullYear() + Math.floor(yearsFromNow / 2)
+  const midMonth = months[now.getMonth()]
+  return {
+    targetMonth,
+    targetYear,
+    startYear: now.getFullYear(),
+    midDate: `${midMonth} ${midYear}`,
+  }
+}
+
+export function buildArtifactsPrompt(answers: WizardAnswers): string {
+  const { targetMonth, targetYear } = getTargetDate(answers.timeframeYears)
+  const pd = answers.personalDetails
+  const personalSection = pd && Object.values(pd).some(v => v)
+    ? `Personal context: ${[
+        pd.age && `Age: ${pd.age}`,
+        pd.location && `Location: ${pd.location}`,
+        pd.relationship && `Relationship: ${pd.relationship}`,
+        pd.children && `Children: ${pd.children}`,
+      ].filter(Boolean).join(', ')}`
+    : ''
+
+  return `You are a creative future scenario designer using the "future artifacts" method from futures thinking.
+
+A future artifact is a tangible piece of media FROM the future — something the person might share, read, or produce in ${targetMonth} ${targetYear}.
+
+PERSON'S PROFILE:
+- Core values: ${answers.values.join(', ')}
+${personalSection ? `- ${personalSection}` : ''}
+- Current situation: ${answers.currentSituation}
+- Future vision: ${answers.futureVision}
+- Focus area: ${answers.focusArea}
+- Time horizon: ${answers.timeframeYears} year(s) from now = ${targetMonth} ${targetYear}
+
+Generate EXACTLY 8 diverse future artifacts that could exist in ${targetMonth} ${targetYear} for this person. Make them specific, evocative, and grounded in their actual situation and values. Mix different types.
+
+Respond with a JSON array ONLY — no other text:
+[
+  {
+    "id": "1",
+    "type": "Social Media Post",
+    "title": "Short description of what this is",
+    "content": "The actual artifact content written AS IF it exists in ${targetMonth} ${targetYear}. For social media: write the actual post. For news article: write the headline + first paragraph. For podcast: write the episode description. Make it feel real and specific to this person."
+  }
+]
+
+Use these types (at least one of each of the first two, then vary the rest):
+- Social Media Post (LinkedIn, Instagram — write it as an actual post)
+- News Article (local or industry news — write headline + opening paragraph)
+- Podcast Episode (episode title + description)
+- Book excerpt or chapter title they've written
+- Email or message they sent or received
+- Award or recognition announcement
+- Course or workshop they launched
+- Review of their work/product/service
+
+All 8 must feel like genuine artifacts from ${targetMonth} ${targetYear}, not vague descriptions.`
+}
+
+export function buildScenarioPrompt(answers: WizardAnswers, selectedArtifacts: FutureArtifact[]): string {
+  const { targetMonth, targetYear, midDate } = getTargetDate(answers.timeframeYears)
   const pd = answers.personalDetails
   const personalSection = pd && Object.values(pd).some(v => v)
     ? `- Personal context: ${[
@@ -25,47 +98,46 @@ export function buildScenarioPrompt(answers: WizardAnswers): string {
       ].filter(Boolean).join(', ')}`
     : ''
 
-  return `You are a thoughtful future scenario planner. Create a personalized, vivid future scenario for a person based on their answers below. The scenario should feel real, grounded, and personally meaningful – not generic.
+  const artifactsSection = selectedArtifacts.map((a, i) =>
+    `Artifact ${i + 1} [${a.type}]: "${a.title}" — ${a.content}`
+  ).join('\n')
+
+  return `You are a thoughtful future scenario planner. Create a vivid, personal future scenario based on the profile and the 3 future artifacts the person selected.
+
+TODAY'S DATE: ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+SCENARIO DATE: ${targetMonth} ${targetYear}
 
 PERSON'S PROFILE:
-- Core values guiding their work: ${answers.values.join(', ')}
+- Core values: ${answers.values.join(', ')}
 ${personalSection}
 - Current situation: ${answers.currentSituation}
-- Their vision for the future: ${answers.futureVision}
-- Main focus area: ${answers.focusArea}
-- Timeframe: ${answers.timeframeYears} year(s) from now
+- Their vision: ${answers.futureVision}
+- Focus area: ${answers.focusArea}
 
-Respond with a JSON object in this exact format:
+THE 3 FUTURE ARTIFACTS THEY CHOSE (these are windows into their future — build the scenario around them):
+${artifactsSection}
+
+Respond with a JSON object ONLY:
 {
-  "title": "A short, evocative name for this scenario (max 6 words, e.g. 'The Resilient Author' or 'Creative Independence')",
+  "title": "A short evocative name for this scenario (max 6 words)",
   "category": "one of: Growth, Transformation, Stability, Adventure, Purpose",
-  "scenario_text": "A rich 3-4 paragraph narrative written in second person ('you') describing the future in vivid detail. Use **bold** for key milestones and achievements. Reference specific things from their current situation and values. Paint the scene: what their daily life looks like, what they've achieved, how they feel. Include two 'Horizons' – **Horizon 1** (first half of timeframe) and **Horizon 2** (second half).",
+  "scenario_text": "A rich 4-5 paragraph narrative in second person ('you') set in ${targetMonth} ${targetYear}. Use **bold** for key achievements. Reference the actual artifacts by name. Include two sections: **Horizon 1 (${midDate}):** what has shifted by then, and **Horizon 2 (${targetMonth} ${targetYear}):** where you've arrived. Be specific with dates, places, and names from their situation.",
   "action_plan": [
     {
       "title": "Action item title",
-      "description": "What to do and why",
-      "timeline": "Next 30 days | Next 3 months | Monthly through [year]",
+      "description": "What to do and why, with a specific deadline month",
+      "timeline": "By [Month Year] | Monthly through [Month Year]",
       "priority": "high | medium | low",
       "sub_tasks": ["Concrete step 1", "Concrete step 2", "Concrete step 3"]
-    }
-  ],
-  "future_artifacts": [
-    {
-      "type": "one of exactly: Social Media Post | News Article | Podcast Episode | Book Review | Project Summary",
-      "title": "Title of the imaginary artifact from the future",
-      "content": "2-3 sentences of content written AS IF this artifact exists in their future. For Social Media Post: write it as an actual post they would share. For News Article: write it as a real headline + opening paragraph.",
-      "relevance": "One sentence explaining why this artifact matters to their journey"
     }
   ]
 }
 
 Rules:
-- action_plan: 4-5 items, mix of short-term and medium-term
-- future_artifacts: EXACTLY 3 items — always include one "Social Media Post" and one "News Article", plus one more of your choice
-- Use **bold** markdown in scenario_text for emphasis on key achievements and turning points
-- Write in English
-- Be specific to THIS person, not generic advice
-- Make it inspiring but realistic`
+- action_plan: 4-5 items with SPECIFIC month+year deadlines based on today being ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+- scenario_text must reference ALL 3 selected artifacts
+- Use **bold** for key milestones in scenario_text
+- Be specific to THIS person, not generic`
 }
 
 export function buildReflectionPrompt(
