@@ -15,8 +15,8 @@ async function generateArtifactsWithRetry(prompt: string, attempts = 3) {
   for (let i = 0; i < attempts; i++) {
     try {
       const message = await anthropic.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2500,
         messages: [{ role: 'user', content: prompt }],
       })
       const text = message.content[0].type === 'text' ? message.content[0].text : '[]'
@@ -45,8 +45,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ artifacts })
   } catch (err) {
     console.error('generate-artifacts failed:', err)
+    const detail = err instanceof Error ? err.message : String(err)
     return NextResponse.json(
-      { error: 'The future artifacts could not be generated just now. Please try again.' },
+      { error: `The future artifacts could not be generated just now. Please try again. (${detail})` },
       { status: 503 }
     )
   }
