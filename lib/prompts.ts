@@ -1,5 +1,6 @@
 export interface PersonalDetails {
   age?: string
+  gender?: string
   location?: string
   relationship?: string
   children?: string
@@ -43,6 +44,7 @@ export function buildArtifactsPrompt(answers: WizardAnswers): string {
   const personalSection = pd && Object.values(pd).some(v => v)
     ? `Personal context: ${[
         pd.age && `Age: ${pd.age}`,
+        pd.gender && `Gender: ${pd.gender}`,
         pd.location && `Location: ${pd.location}`,
         pd.relationship && `Relationship: ${pd.relationship}`,
         pd.children && `Children: ${pd.children}`,
@@ -83,7 +85,7 @@ Use these types (at least one of each of the first two, then vary the rest):
 - Course or workshop they launched
 - Review of their work/product/service
 
-All 8 must feel like genuine artifacts from ${targetMonth} ${targetYear}, not vague descriptions.`
+All 8 must feel like genuine artifacts from ${targetMonth} ${targetYear}, not vague descriptions. Be concrete and specific — real-sounding names, numbers, and details rather than generic statements. Do NOT assume the person's gender, a spouse/partner, or children unless stated in their profile above.`
 }
 
 export function buildScenarioPrompt(answers: WizardAnswers, selectedArtifacts: FutureArtifact[]): string {
@@ -92,6 +94,7 @@ export function buildScenarioPrompt(answers: WizardAnswers, selectedArtifacts: F
   const personalSection = pd && Object.values(pd).some(v => v)
     ? `- Personal context: ${[
         pd.age && `Age: ${pd.age}`,
+        pd.gender && `Gender: ${pd.gender}`,
         pd.location && `Location: ${pd.location}`,
         pd.relationship && `Relationship: ${pd.relationship}`,
         pd.children && `Children: ${pd.children}`,
@@ -137,7 +140,9 @@ Rules:
 - action_plan: 4-5 items with SPECIFIC month+year deadlines based on today being ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - scenario_text must reference ALL 3 selected artifacts
 - Use **bold** for key milestones in scenario_text
-- Be specific to THIS person, not generic`
+- Be specific to THIS person, not generic
+- CONCRETE OVER VAGUE: avoid abstract filler like "you've grown so much" or "things have shifted." Instead show specific, observable details — real numbers, named places, concrete actions, sensory moments. Every sentence should earn its place. If a line could apply to anyone, rewrite it so it could only be about this person.
+- DO NOT ASSUME gender, a spouse, a partner, or children unless they appear in the profile above. Never invent a "wife", "husband", "partner", or kids that weren't stated. If gender is given, you may use matching pronouns; if it is not given, write naturally without assuming one (use the person's "you" voice and avoid gendered references to them).`
 }
 
 export function buildReflectionPrompt(

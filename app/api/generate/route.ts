@@ -3,7 +3,32 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase-server'
 import { buildScenarioPrompt, WizardAnswers, FutureArtifact } from '@/lib/prompts'
 
+export const maxDuration = 60
+export const dynamic = 'force-dynamic'
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+// Retry the model call + parse so a transient hiccup or a non-JSON reply
+// doesn't fail the whole generation for the user.
+async function generateScenarioWithRetry(prompt: string, attempts = 3) {
+  let lastError: unknown
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }],
+      })
+      const text = message.content[0].type === 'text' ? message.content[0].text : ''
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('No JSON object in response')
+      return JSON.parse(jsonMatch[0])
+    } catch (err) {
+      lastError = err
+    }
+  }
+  throw lastError
+}
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -14,17 +39,16 @@ export async function POST(req: NextRequest) {
 
   const prompt = buildScenarioPrompt(answers, selectedArtifacts)
 
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 4000,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const text = message.content[0].type === 'text' ? message.content[0].text : ''
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
-
-  const parsed = JSON.parse(jsonMatch[0])
+  let parsed
+  try {
+    parsed = await generateScenarioWithRetry(prompt)
+  } catch (err) {
+    console.error('generate scenario failed:', err)
+    return NextResponse.json(
+      { error: 'The scenario could not be generated just now. Please try again.' },
+      { status: 503 }
+    )
+  }
 
   const { data: scenario, error: scenarioError } = await supabase
     .from('scenarios')

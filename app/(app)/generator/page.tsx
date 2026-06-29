@@ -36,7 +36,7 @@ const ARTIFACT_COLORS: Record<string, string> = {
 
 interface Answers {
   values: string[]
-  personalDetails: { age: string; location: string; relationship: string; children: string }
+  personalDetails: { age: string; gender: string; location: string; relationship: string; children: string }
   currentSituation: string
   futureVision: string
   focusArea: string
@@ -45,7 +45,7 @@ interface Answers {
 
 const initialAnswers: Answers = {
   values: [],
-  personalDetails: { age: '', location: '', relationship: '', children: '' },
+  personalDetails: { age: '', gender: '', location: '', relationship: '', children: '' },
   currentSituation: '',
   futureVision: '',
   focusArea: '',
@@ -99,8 +99,8 @@ export default function GeneratorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(answers),
       })
-      if (!res.ok) throw new Error(await res.text())
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error ?? 'Could not generate artifacts. Please try again.')
       setArtifacts(data.artifacts)
       setPhase('pick-artifacts')
     } catch (e: unknown) {
@@ -120,8 +120,8 @@ export default function GeneratorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers, selectedArtifacts }),
       })
-      if (!res.ok) throw new Error(await res.text())
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error ?? 'Could not generate the scenario. Please try again.')
       router.push(`/scenarios/${data.id}`)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
@@ -254,6 +254,7 @@ export default function GeneratorPage() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: 'Age', key: 'age', placeholder: 'e.g. 38' },
+                { label: 'Gender', key: 'gender', placeholder: 'e.g. Woman' },
                 { label: 'Location', key: 'location', placeholder: 'e.g. Oslo, Norway' },
                 { label: 'Relationship status', key: 'relationship', placeholder: 'e.g. Married' },
                 { label: 'Children', key: 'children', placeholder: 'e.g. 2 kids, ages 8 and 11' },
