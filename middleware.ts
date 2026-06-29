@@ -27,11 +27,14 @@ export async function middleware(request: NextRequest) {
   const publicPaths = ['/login', '/signup']
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
   const isLanding = pathname === '/'
+  // Open to everyone, with no redirect either way (info pages).
+  const isOpen = pathname === '/privacy'
 
-  if (!user && !isPublic && !isLanding) {
+  if (!user && !isPublic && !isLanding && !isOpen) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Logged-in users skip the marketing/auth pages, but may still read info pages.
   if (user && (isPublic || isLanding)) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }

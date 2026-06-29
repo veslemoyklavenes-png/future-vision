@@ -147,6 +147,8 @@ export default function LandingPage() {
       <footer className="border-t border-border">
         <div className="max-w-5xl mx-auto px-6 py-8 text-center text-sm text-ink-soft">
           Stories for the Future — see your future, then build it.
+          <span className="mx-2">·</span>
+          <Link href="/privacy" className="text-sage-deep hover:underline">Privacy</Link>
         </div>
       </footer>
     </div>

@@ -77,6 +77,10 @@ export default function SignupPage() {
           Already have an account?{' '}
           <Link href="/login" className="text-sage-deep font-medium hover:underline">Sign in</Link>
         </p>
+        <p className="text-center text-xs text-ink-soft mt-3">
+          By creating an account you agree to our{' '}
+          <Link href="/privacy" className="text-sage-deep hover:underline">Privacy Policy</Link>.
+        </p>
       </div>
     </div>
   )
