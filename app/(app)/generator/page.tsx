@@ -64,6 +64,7 @@ export default function GeneratorPage() {
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [customValue, setCustomValue] = useState('')
 
   function toggleValue(v: string) {
     setAnswers(prev => ({
@@ -81,8 +82,20 @@ export default function GeneratorPage() {
     )
   }
 
+  // Replace the "Other" marker with the typed custom value before sending.
+  function resolvedValues() {
+    return answers.values
+      .map(v => (v === 'Other' ? customValue.trim() : v))
+      .filter(Boolean)
+  }
+
   function canAdvance() {
-    if (step === 1) return answers.values.length > 0
+    if (step === 1) {
+      if (answers.values.length === 0) return false
+      // If "Other" is chosen, require some text in the field.
+      if (answers.values.includes('Other') && customValue.trim() === '') return false
+      return true
+    }
     if (step === 2) return true
     if (step === 3) return answers.currentSituation.trim().length > 20
     if (step === 4) return answers.futureVision.trim().length > 20
@@ -97,7 +110,7 @@ export default function GeneratorPage() {
       const res = await fetch('/api/generate-artifacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(answers),
+        body: JSON.stringify({ ...answers, values: resolvedValues() }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error ?? 'Could not generate artifacts. Please try again.')
@@ -118,7 +131,7 @@ export default function GeneratorPage() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers, selectedArtifacts }),
+        body: JSON.stringify({ answers: { ...answers, values: resolvedValues() }, selectedArtifacts }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error ?? 'Could not generate the scenario. Please try again.')
@@ -239,6 +252,19 @@ export default function GeneratorPage() {
                   </button>
                 ))}
               </div>
+              {answers.values.includes('Other') && (
+                <div className="mt-4">
+                  <label className="text-xs font-medium text-ink-muted block mb-1">
+                    Your own value
+                  </label>
+                  <Input
+                    autoFocus
+                    placeholder="e.g. Adventure, Legacy, Connection to nature…"
+                    value={customValue}
+                    onChange={e => setCustomValue(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
