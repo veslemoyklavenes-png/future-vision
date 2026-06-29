@@ -26,12 +26,13 @@ export async function middleware(request: NextRequest) {
 
   const publicPaths = ['/login', '/signup']
   const isPublic = publicPaths.some(p => pathname.startsWith(p))
+  const isLanding = pathname === '/'
 
-  if (!user && !isPublic) {
+  if (!user && !isPublic && !isLanding) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (user && isPublic) {
+  if (user && (isPublic || isLanding)) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
