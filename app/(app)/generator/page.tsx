@@ -352,11 +352,17 @@ export default function GeneratorPage() {
         {loading && (
           <div className="mt-8 flex flex-col items-center gap-3 text-slate-500">
             <Loader2 size={32} className="animate-spin text-indigo-500" />
-            <p className="text-sm">Generating your future artifacts… ~15 seconds</p>
+            <p className="text-sm">Generating your future artifacts… this takes about 15 seconds</p>
           </div>
         )}
 
-        {error && <p className="mt-4 text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2">{error}</p>}
+        {error && (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm font-semibold text-red-700 mb-1">Something went wrong</p>
+            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-xs text-red-400 mt-2">If this keeps happening, try refreshing and starting again.</p>
+          </div>
+        )}
 
         {!loading && (
           <div className="flex items-center justify-between mt-8">
