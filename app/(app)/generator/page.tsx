@@ -112,8 +112,13 @@ export default function GeneratorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...answers, values: resolvedValues() }),
       })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error ?? 'Could not generate artifacts. Please try again.')
+      const raw = await res.text()
+      let data: { error?: string; artifacts?: FutureArtifact[] } = {}
+      try { data = JSON.parse(raw) } catch { /* non-JSON (e.g. platform timeout page) */ }
+      if (!res.ok || !data.artifacts) {
+        const snippet = raw ? ` — ${raw.slice(0, 140)}` : ''
+        throw new Error(data.error ?? `Request failed (HTTP ${res.status})${snippet}`)
+      }
       setArtifacts(data.artifacts)
       setPhase('pick-artifacts')
     } catch (e: unknown) {
