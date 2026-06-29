@@ -49,7 +49,7 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">{scenario.title}</h1>
+        <h1 className="text-3xl font-serif text-ink mb-2">{scenario.title}</h1>
         <div className="flex justify-center gap-2 mb-4">
           <Badge variant="outline">{scenario.category}</Badge>
           <Badge variant="secondary">lifestyle</Badge>
@@ -58,8 +58,8 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
       </div>
 
       {/* Future Scenario */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-4">
-        <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-4">
+      <div className="bg-card rounded-2xl border border-border p-6 mb-4 shadow-sm">
+        <div className="flex items-center gap-2 text-sage-deep font-semibold mb-4">
           <Sparkles size={18} /> Future Scenario
         </div>
         <Markdown content={scenario.scenario_text} />
@@ -72,19 +72,19 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
 
       {/* Future Artifacts */}
       {scenario.future_artifacts && scenario.future_artifacts.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-4">
-          <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-4">
+        <div className="bg-card rounded-2xl border border-border p-6 mb-4 shadow-sm">
+          <div className="flex items-center gap-2 text-sage-deep font-semibold mb-4">
             <Sparkles size={18} /> Future Artifacts
           </div>
           <div className="space-y-5">
             {scenario.future_artifacts.map((artifact: { type: string; title: string; content: string; relevance: string }, i: number) => (
-              <div key={i} className="border border-slate-100 rounded-xl p-4">
-                <span className={`inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1 mb-2 ${artifactColors[artifact.type] ?? 'bg-slate-50 text-slate-600'}`}>
+              <div key={i} className="border border-border rounded-xl p-4 bg-cream/40">
+                <span className={`inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1 mb-2 ${artifactColors[artifact.type] ?? 'bg-sage-light text-sage-deep'}`}>
                   {artifactIcons[artifact.type]} {artifact.type}
                 </span>
-                <h3 className="font-semibold text-slate-800 mb-1">{artifact.title}</h3>
-                <p className="text-sm text-slate-600 mb-2 leading-relaxed">{artifact.content}</p>
-                <p className="text-xs text-slate-400 italic border-t border-slate-100 pt-2">{artifact.relevance}</p>
+                <h3 className="font-serif text-lg text-ink mb-1">{artifact.title}</h3>
+                <p className="text-sm text-ink-muted mb-2 leading-relaxed">{artifact.content}</p>
+                {artifact.relevance && <p className="text-xs text-ink-soft italic border-t border-border pt-2">{artifact.relevance}</p>}
               </div>
             ))}
           </div>

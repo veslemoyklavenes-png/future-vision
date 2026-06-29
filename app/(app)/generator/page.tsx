@@ -28,7 +28,7 @@ const ARTIFACT_COLORS: Record<string, string> = {
   'News Article': 'border-blue-200 bg-blue-50',
   'Podcast Episode': 'border-orange-200 bg-orange-50',
   'Book excerpt or chapter title they\'ve written': 'border-green-200 bg-green-50',
-  'Email or message they sent or received': 'border-slate-200 bg-slate-50',
+  'Email or message they sent or received': 'border-border bg-slate-50',
   'Award or recognition announcement': 'border-yellow-200 bg-yellow-50',
   'Course or workshop they launched': 'border-purple-200 bg-purple-50',
   'Review of their work/product/service': 'border-teal-200 bg-teal-50',
@@ -133,15 +133,15 @@ export default function GeneratorPage() {
   if (phase === 'pick-artifacts') {
     const targetYear = new Date().getFullYear() + answers.timeframeYears
     return (
-      <div className="min-h-screen flex flex-col items-center py-12 px-4 bg-gradient-to-br from-slate-100 to-indigo-50">
+      <div className="min-h-screen flex flex-col items-center py-12 px-4 bg-gradient-to-b from-sage-light/50 to-cream">
         <div className="w-full max-w-3xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-slate-800">Choose Your Future Artifacts</h1>
-            <p className="text-slate-500 mt-2">
+            <h1 className="text-2xl font-bold text-ink">Choose Your Future Artifacts</h1>
+            <p className="text-ink-muted mt-2">
               These are glimpses of your life in <strong>{targetYear}</strong>.
               Pick <strong>3</strong> that resonate most — they will shape your scenario.
             </p>
-            <p className="text-sm text-indigo-600 mt-1 font-medium">
+            <p className="text-sm text-sage-deep mt-1 font-medium">
               {selected.length} / 3 selected
             </p>
           </div>
@@ -149,7 +149,7 @@ export default function GeneratorPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
             {artifacts.map(artifact => {
               const isSelected = selected.includes(artifact.id)
-              const colorClass = ARTIFACT_COLORS[artifact.type] ?? 'border-slate-200 bg-white'
+              const colorClass = ARTIFACT_COLORS[artifact.type] ?? 'border-border bg-white'
               return (
                 <button
                   key={artifact.id}
@@ -157,20 +157,20 @@ export default function GeneratorPage() {
                   disabled={!isSelected && selected.length >= 3}
                   className={cn(
                     'text-left p-4 rounded-xl border-2 transition-all relative',
-                    isSelected ? 'border-indigo-500 bg-indigo-50 shadow-md' : colorClass,
+                    isSelected ? 'border-sage-deep bg-sage-light shadow-md' : colorClass,
                     !isSelected && selected.length >= 3 && 'opacity-40 cursor-not-allowed'
                   )}
                 >
                   {isSelected && (
-                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
+                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-sage-deep flex items-center justify-center">
                       <Check size={14} className="text-white" />
                     </div>
                   )}
-                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wide block mb-1">
+                  <span className="text-xs font-medium text-ink-muted uppercase tracking-wide block mb-1">
                     {artifact.type}
                   </span>
-                  <h3 className="font-semibold text-slate-800 text-sm mb-1">{artifact.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">{artifact.content}</p>
+                  <h3 className="font-semibold text-ink text-sm mb-1">{artifact.title}</h3>
+                  <p className="text-sm text-ink-muted leading-relaxed">{artifact.content}</p>
                 </button>
               )
             })}
@@ -179,13 +179,13 @@ export default function GeneratorPage() {
           {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2 mb-4">{error}</p>}
 
           <div className="flex justify-between">
-            <button onClick={() => setPhase('wizard')} className="text-slate-400 hover:text-slate-600 text-sm">
+            <button onClick={() => setPhase('wizard')} className="text-ink-soft hover:text-ink-muted text-sm">
               ← Back to wizard
             </button>
             <Button
               onClick={generateScenario}
               disabled={selected.length < 3}
-              className="bg-indigo-600 hover:bg-indigo-700 gap-2 px-8"
+              className="bg-sage-deep hover:bg-sage-deeper text-white gap-2 px-8"
             >
               <Sparkles size={16} /> Generate my scenario
             </Button>
@@ -198,11 +198,11 @@ export default function GeneratorPage() {
   // ── Generating phase ───────────────────────────────────────────────
   if (phase === 'generating') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sage-light/50 to-cream">
         <div className="text-center">
-          <Loader2 size={48} className="animate-spin text-indigo-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-slate-700 mb-2">Building your future scenario…</h2>
-          <p className="text-slate-400 text-sm">Weaving your chosen artifacts into a personal narrative. About 20 seconds.</p>
+          <Loader2 size={48} className="animate-spin text-sage-deep mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-ink mb-2">Building your future scenario…</h2>
+          <p className="text-ink-soft text-sm">Weaving your chosen artifacts into a personal narrative. About 20 seconds.</p>
         </div>
       </div>
     )
@@ -210,21 +210,21 @@ export default function GeneratorPage() {
 
   // ── Wizard phase ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start py-12 px-4 bg-gradient-to-br from-slate-100 to-indigo-50">
-      <h1 className="text-2xl font-bold text-slate-800 mb-8">Future Scenario Generator</h1>
+    <div className="min-h-screen flex flex-col items-center justify-start py-12 px-4 bg-gradient-to-b from-sage-light/50 to-cream">
+      <h1 className="text-2xl font-bold text-ink mb-8">Future Scenario Generator</h1>
 
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+      <div className="w-full max-w-2xl bg-card rounded-2xl shadow-sm border border-border p-8">
 
         {step === 1 && (
           <div>
-            <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
+            <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
               <span>🧭</span> Inner Compass
             </div>
-            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+            <p className="text-ink-muted mb-6 text-sm leading-relaxed">
               Before we look to the future, let&apos;s ground ourselves in the now. Choose the values that guide your work and life.
             </p>
             <div className="border rounded-xl p-5">
-              <p className="text-sm font-medium text-slate-700 mb-4">
+              <p className="text-sm font-medium text-ink mb-4">
                 What are the core values that guide your work? Choose up to three.
               </p>
               <div className="flex flex-wrap gap-2">
@@ -232,8 +232,8 @@ export default function GeneratorPage() {
                   <button key={v} onClick={() => toggleValue(v)}
                     className={cn('px-4 py-2 rounded-full border text-sm transition-colors',
                       answers.values.includes(v)
-                        ? 'bg-indigo-600 border-indigo-600 text-white'
-                        : 'border-slate-200 text-slate-700 hover:border-indigo-300'
+                        ? 'bg-sage-deep border-sage-deep text-white'
+                        : 'border-border text-ink hover:border-sage-mid'
                     )}>
                     {v}
                   </button>
@@ -245,10 +245,10 @@ export default function GeneratorPage() {
 
         {step === 2 && (
           <div>
-            <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
-              <span>👤</span> About You <span className="text-slate-400 font-normal text-sm ml-1">(optional)</span>
+            <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
+              <span>👤</span> About You <span className="text-ink-soft font-normal text-sm ml-1">(optional)</span>
             </div>
-            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+            <p className="text-ink-muted mb-6 text-sm leading-relaxed">
               Personal context helps the AI create a more tailored scenario. All fields are optional.
             </p>
             <div className="grid grid-cols-2 gap-4">
@@ -259,7 +259,7 @@ export default function GeneratorPage() {
                 { label: 'Children', key: 'children', placeholder: 'e.g. 2 kids, ages 8 and 11' },
               ].map(({ label, key, placeholder }) => (
                 <div key={key}>
-                  <label className="text-xs font-medium text-slate-600 block mb-1">{label}</label>
+                  <label className="text-xs font-medium text-ink-muted block mb-1">{label}</label>
                   <Input
                     placeholder={placeholder}
                     value={answers.personalDetails[key as keyof typeof answers.personalDetails]}
@@ -273,10 +273,10 @@ export default function GeneratorPage() {
 
         {step === 3 && (
           <div>
-            <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
+            <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
               <span>📍</span> Your Current Situation
             </div>
-            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+            <p className="text-ink-muted mb-6 text-sm leading-relaxed">
               Describe where you are right now. What&apos;s going well? What challenges are you navigating?
             </p>
             <Textarea
@@ -285,16 +285,16 @@ export default function GeneratorPage() {
               placeholder="I'm currently working on... The challenges I face are... What's working well is..."
               className="min-h-[160px] resize-none"
             />
-            <p className="text-xs text-slate-400 mt-2">{answers.currentSituation.length} characters (min 20)</p>
+            <p className="text-xs text-ink-soft mt-2">{answers.currentSituation.length} characters (min 20)</p>
           </div>
         )}
 
         {step === 4 && (
           <div>
-            <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
+            <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
               <span>✨</span> Your Future Vision
             </div>
-            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+            <p className="text-ink-muted mb-6 text-sm leading-relaxed">
               Dream a little. What does your ideal life look like? What have you created, achieved, or become?
             </p>
             <Textarea
@@ -303,30 +303,30 @@ export default function GeneratorPage() {
               placeholder="I see myself... I've created... I feel... My days look like..."
               className="min-h-[160px] resize-none"
             />
-            <p className="text-xs text-slate-400 mt-2">{answers.futureVision.length} characters (min 20)</p>
+            <p className="text-xs text-ink-soft mt-2">{answers.futureVision.length} characters (min 20)</p>
           </div>
         )}
 
         {step === 5 && (
           <div>
-            <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
+            <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
               <span>🎯</span> Focus & Timeframe
             </div>
-            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+            <p className="text-ink-muted mb-6 text-sm leading-relaxed">
               What&apos;s your main focus, and how far into the future should we look?
               {answers.timeframeYears > 0 && (
-                <span className="text-indigo-600 font-medium">
+                <span className="text-sage-deep font-medium">
                   {' '}Target: {new Date().getFullYear() + answers.timeframeYears}
                 </span>
               )}
             </p>
             <div className="mb-6">
-              <p className="text-sm font-medium text-slate-700 mb-3">Main focus area</p>
+              <p className="text-sm font-medium text-ink mb-3">Main focus area</p>
               <div className="flex flex-wrap gap-2">
                 {FOCUS_AREAS.map(f => (
                   <button key={f} onClick={() => setAnswers(prev => ({ ...prev, focusArea: f }))}
                     className={cn('px-4 py-2 rounded-full border text-sm transition-colors',
-                      answers.focusArea === f ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-200 text-slate-700 hover:border-indigo-300'
+                      answers.focusArea === f ? 'bg-sage-deep border-sage-deep text-white' : 'border-border text-ink hover:border-sage-mid'
                     )}>
                     {f}
                   </button>
@@ -334,12 +334,12 @@ export default function GeneratorPage() {
               </div>
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-700 mb-3">Timeframe</p>
+              <p className="text-sm font-medium text-ink mb-3">Timeframe</p>
               <div className="flex gap-2">
                 {TIMEFRAMES.map(t => (
                   <button key={t.value} onClick={() => setAnswers(prev => ({ ...prev, timeframeYears: t.value }))}
                     className={cn('px-4 py-2 rounded-full border text-sm transition-colors',
-                      answers.timeframeYears === t.value ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-200 text-slate-700 hover:border-indigo-300'
+                      answers.timeframeYears === t.value ? 'bg-sage-deep border-sage-deep text-white' : 'border-border text-ink hover:border-sage-mid'
                     )}>
                     {t.label}
                   </button>
@@ -350,8 +350,8 @@ export default function GeneratorPage() {
         )}
 
         {loading && (
-          <div className="mt-8 flex flex-col items-center gap-3 text-slate-500">
-            <Loader2 size={32} className="animate-spin text-indigo-500" />
+          <div className="mt-8 flex flex-col items-center gap-3 text-ink-muted">
+            <Loader2 size={32} className="animate-spin text-sage-deep" />
             <p className="text-sm">Generating your future artifacts… this takes about 15 seconds</p>
           </div>
         )}
@@ -367,17 +367,17 @@ export default function GeneratorPage() {
         {!loading && (
           <div className="flex items-center justify-between mt-8">
             <button onClick={() => setStep(s => s - 1)} disabled={step === 1}
-              className="text-slate-400 hover:text-slate-600 text-sm disabled:opacity-30">
+              className="text-ink-soft hover:text-ink-muted text-sm disabled:opacity-30">
               Back
             </button>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-400">{step} / {WIZARD_STEPS}</span>
+              <span className="text-sm text-ink-soft">{step} / {WIZARD_STEPS}</span>
               {step < WIZARD_STEPS ? (
-                <Button onClick={() => setStep(s => s + 1)} disabled={!canAdvance()} className="bg-indigo-600 hover:bg-indigo-700">
+                <Button onClick={() => setStep(s => s + 1)} disabled={!canAdvance()} className="bg-sage-deep hover:bg-sage-deeper text-white">
                   Next
                 </Button>
               ) : (
-                <Button onClick={generateArtifacts} disabled={!canAdvance()} className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+                <Button onClick={generateArtifacts} disabled={!canAdvance()} className="bg-sage-deep hover:bg-sage-deeper text-white gap-2">
                   <Sparkles size={16} /> Generate artifacts
                 </Button>
               )}

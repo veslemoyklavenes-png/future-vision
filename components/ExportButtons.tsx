@@ -48,7 +48,7 @@ export default function ExportButtons({ scenarioId, userEmail }: { scenarioId: s
       <Button variant="outline" size="sm" onClick={exportData} className="gap-1">
         <Database size={14} /> Export Data
       </Button>
-      <Button size="sm" onClick={sendEmail} disabled={sending || sent} className="bg-slate-800 hover:bg-slate-900 gap-1">
+      <Button size="sm" onClick={sendEmail} disabled={sending || sent} className="bg-sage-deep hover:bg-sage-deeper text-white gap-1">
         <Mail size={14} /> {sent ? 'Sent!' : sending ? 'Sending…' : 'Send to my email'}
       </Button>
     </div>

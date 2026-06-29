@@ -23,9 +23,9 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 min-h-screen bg-[#1a1f2e] text-white flex flex-col shrink-0">
-      <div className="p-6 border-b border-white/10">
-        <h1 className="text-xl font-bold">Future Vision</h1>
+    <aside className="w-64 min-h-screen bg-sage-deep text-white/90 flex flex-col shrink-0">
+      <div className="p-6 border-b border-white/15">
+        <h1 className="text-xl font-serif font-semibold tracking-wide text-white">Stories for the Future</h1>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
@@ -36,8 +36,8 @@ export default function Sidebar() {
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
               pathname.startsWith(href)
-                ? 'bg-white/10 text-white'
-                : 'text-white/70 hover:bg-white/5 hover:text-white'
+                ? 'bg-white/15 text-white'
+                : 'text-white/70 hover:bg-white/10 hover:text-white'
             )}
           >
             <Icon size={18} />
@@ -46,16 +46,16 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-white/10 flex gap-2">
+      <div className="p-4 border-t border-white/15 flex gap-2">
         <button
           onClick={() => router.push('/account')}
-          className={cn(buttonVariants({ size: 'sm', variant: 'outline' }), 'flex-1 bg-transparent border-white/20 text-white hover:bg-white/10')}
+          className={cn(buttonVariants({ size: 'sm', variant: 'outline' }), 'flex-1 bg-transparent border-white/25 text-white hover:bg-white/10')}
         >
           <User size={14} className="mr-1" /> Account
         </button>
         <button
           onClick={signOut}
-          className={cn(buttonVariants({ size: 'sm' }), 'flex-1 bg-red-500 hover:bg-red-600 text-white border-0')}
+          className={cn(buttonVariants({ size: 'sm' }), 'flex-1 bg-white/10 hover:bg-white/20 text-white border-0')}
         >
           <LogOut size={14} className="mr-1" /> Sign out
         </button>

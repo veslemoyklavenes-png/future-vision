@@ -2,8 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #F3F1EA;
+  --foreground: #33312C;
+  --card: #FFFFFF;
+  --card-foreground: #33312C;
+  --primary: #4A6B58;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E7EDE7;
+  --secondary-foreground: #3B4A41;
+  --muted: #ECEAE2;
+  --muted-foreground: #6B6760;
+  --accent: #A9C8B8;
+  --accent-foreground: #2C3A32;
+  --destructive: #C0573F;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2DED4;
+  --input: #E2DED4;
+  --ring: #8FB3A1;
+  --radius-md: 0.5rem;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3 {
+    @apply font-serif;
   }
 }

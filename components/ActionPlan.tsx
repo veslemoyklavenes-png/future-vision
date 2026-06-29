@@ -32,14 +32,14 @@ export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId:
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-4">
+    <div className="bg-card rounded-2xl border border-border p-6 mb-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 text-green-600 font-semibold">
+        <div className="flex items-center gap-2 text-sage-deep font-semibold">
           <Target size={18} /> Action Plan
         </div>
         <div className="flex items-center gap-3">
           <Progress value={pct} className="w-32 h-2" />
-          <span className="text-xs text-slate-400">{pct}% completed</span>
+          <span className="text-xs text-ink-soft">{pct}% completed</span>
         </div>
       </div>
 
@@ -52,10 +52,10 @@ export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId:
               className="mt-0.5 shrink-0"
             />
             <div className="flex-1">
-              <h3 className={cn('font-semibold text-slate-800 mb-1', item.completed && 'line-through text-slate-400')}>
+              <h3 className={cn('font-semibold text-ink mb-1', item.completed && 'line-through text-ink-soft')}>
                 {item.title}
               </h3>
-              <p className="text-sm text-slate-500 mb-2">{item.description}</p>
+              <p className="text-sm text-ink-muted mb-2">{item.description}</p>
               <div className="flex gap-2 mb-2">
                 <Badge variant="outline" className="text-xs">⏱ {item.timeline}</Badge>
                 <Badge
@@ -66,10 +66,10 @@ export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId:
                 </Badge>
               </div>
               {item.sub_tasks?.length > 0 && (
-                <ul className="text-sm text-slate-500 space-y-0.5 ml-1">
+                <ul className="text-sm text-ink-muted space-y-0.5 ml-1">
                   {item.sub_tasks.map((t, i) => (
                     <li key={i} className="flex items-start gap-1.5">
-                      <span className="text-slate-300 mt-1">•</span> {t}
+                      <span className="text-sage-mid mt-1">•</span> {t}
                     </li>
                   ))}
                 </ul>

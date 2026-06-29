@@ -34,11 +34,11 @@ export default function SignupPage() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sage-light/50 to-cream">
         <div className="text-center max-w-sm px-6">
-          <Sparkles size={40} className="mx-auto mb-4 text-indigo-500" />
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Check your email</h2>
-          <p className="text-slate-500 text-sm">
+          <Sparkles size={40} className="mx-auto mb-4 text-sage-deep" />
+          <h2 className="text-2xl font-serif text-ink mb-2">Check your email</h2>
+          <p className="text-ink-muted text-sm">
             We sent a confirmation link to <strong>{email}</strong>.
             Click it to activate your account.
           </p>
@@ -48,14 +48,14 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-indigo-50">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sage-light/50 to-cream">
+      <div className="w-full max-w-sm bg-card rounded-2xl shadow-sm border border-border p-8">
         <div className="text-center mb-6">
-          <div className="mx-auto mb-3 w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-            <Sparkles size={24} className="text-indigo-500" />
+          <div className="mx-auto mb-3 w-12 h-12 rounded-full bg-sage-light flex items-center justify-center">
+            <Sparkles size={24} className="text-sage-deep" />
           </div>
-          <h1 className="text-xl font-bold text-slate-800">Create your account</h1>
-          <p className="text-slate-500 text-sm mt-1">Start charting your future</p>
+          <h1 className="text-2xl font-serif text-ink">Create your account</h1>
+          <p className="text-ink-muted text-sm mt-1">Start charting your future</p>
         </div>
 
         <form onSubmit={signup} className="space-y-4">
@@ -67,15 +67,15 @@ export default function SignupPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="mt-1" />
           </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <Button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700">
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button type="submit" disabled={loading} className="w-full bg-sage-deep hover:bg-sage-deeper text-white">
             {loading ? 'Creating account…' : 'Create account'}
           </Button>
         </form>
 
-        <p className="text-center text-sm text-slate-500 mt-4">
+        <p className="text-center text-sm text-ink-muted mt-4">
           Already have an account?{' '}
-          <Link href="/login" className="text-indigo-600 hover:underline">Sign in</Link>
+          <Link href="/login" className="text-sage-deep font-medium hover:underline">Sign in</Link>
         </p>
       </div>
     </div>
