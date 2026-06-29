@@ -59,6 +59,7 @@ const sections: Section[] = [
         title: 'Foresight University',
         description: 'Resources and community for learning about technological foresight and long-term thinking.',
         tags: ['Technology', 'Community'],
+        url: 'https://foresight.org/',
       },
     ],
   },
@@ -70,16 +71,19 @@ const sections: Section[] = [
         title: 'Imaginable by Jane McGonigal',
         description: "A guide to using simulation and imagination to prepare for the future, based on IFTF's research methods.",
         tags: ['Simulation', 'Practical Guide'],
+        url: 'https://janemcgonigal.com/',
       },
       {
         title: 'The Art of the Long View by Peter Schwartz',
         description: 'The classic introduction to scenario planning from the pioneer at Shell and Global Business Network.',
         tags: ['Scenario Planning', 'Classic'],
+        url: 'https://en.wikipedia.org/wiki/The_Art_of_the_Long_View',
       },
       {
         title: 'Futures Thinking Playbook (UN SDG:Learn)',
         description: 'A practical toolkit with methods for applying futures thinking to everyday decisions and planning.',
         tags: ['Toolkit', 'Practical'],
+        url: 'https://www.unsdglearn.org/',
       },
     ],
   },
@@ -91,16 +95,19 @@ const sections: Section[] = [
         title: 'Futures Wheel',
         description: 'A structured brainstorming method for identifying direct and indirect consequences of trends or events.',
         tags: ['Method', 'Free'],
+        url: 'https://en.wikipedia.org/wiki/Futures_wheel',
       },
       {
         title: 'Three Horizons Framework',
         description: 'A simple framework for thinking about transformation over time, widely used in strategic foresight.',
         tags: ['Framework', 'Strategy'],
+        url: 'https://www.h3uni.org/tutorial/three-horizons',
       },
       {
         title: 'Causal Layered Analysis (CLA)',
         description: 'A futures research method developed by Sohail Inayatullah for exploring deeper layers of change.',
         tags: ['Method', 'Advanced'],
+        url: 'https://foresight.unglobalpulse.net/blog/tools/causal-layered-analysis/',
       },
     ],
   },
@@ -111,8 +118,20 @@ const sections: Section[] = [
       {
         title: 'OECD Strategic Foresight',
         description: "OECD's hub for strategic foresight, futures literacy, and anticipatory governance resources.",
-        tags: ['Government', 'Policy'],
+        tags: ['Overview', 'OECD'],
         url: 'https://www.oecd.org/en/about/programmes/strategic-foresight.html',
+      },
+      {
+        title: 'Shell Scenarios',
+        description: "Shell's scenarios hub, including the 2026 Energy Security Scenarios and earlier work.",
+        tags: ['Case Study', 'Corporate'],
+        url: 'https://www.shell.com/energy-and-innovation/the-energy-future/scenarios.html',
+      },
+      {
+        title: 'Four Keys to Effective Horizon Scanning (MIT Sloan)',
+        description: 'Practical guidance for building better strategic foresight through horizon scanning.',
+        tags: ['Academic', 'Business'],
+        url: 'https://sloanreview.mit.edu/',
       },
     ],
   },
@@ -172,6 +191,16 @@ export default function ResourcesPage() {
           </section>
         ))}
       </div>
+
+      <p className="text-center text-sm text-ink-soft mt-12 pt-8 border-t border-border">
+        Know a great resource we should include?{' '}
+        <a
+          href="mailto:veslemoy.klavenes@gmail.com?subject=Resource%20suggestion%20for%20Stories%20for%20the%20Future"
+          className="text-sage-deep font-medium hover:underline"
+        >
+          Let us know
+        </a>
+      </p>
     </div>
   )
 }
