@@ -19,14 +19,10 @@ export default function ExportButtons({ scenarioId, userEmail }: { scenarioId: s
     setTimeout(() => setSent(false), 3000)
   }
 
-  async function exportPdf() {
-    const res = await fetch(`/api/scenarios/${scenarioId}/pdf`)
-    const blob = await res.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `scenario-${scenarioId.slice(0, 8)}.pdf`
-    a.click()
+  function exportPdf() {
+    // Opens a clean, print-styled view; the browser's print dialog lets the
+    // user "Save as PDF". Reliable everywhere, no server-side PDF engine needed.
+    window.open(`/api/scenarios/${scenarioId}/pdf`, '_blank')
   }
 
   async function exportData() {
@@ -45,8 +41,8 @@ export default function ExportButtons({ scenarioId, userEmail }: { scenarioId: s
       <Button variant="outline" size="sm" onClick={exportPdf} className="gap-1">
         <FileDown size={14} /> Export PDF
       </Button>
-      <Button variant="outline" size="sm" onClick={exportData} className="gap-1">
-        <Database size={14} /> Export Data
+      <Button variant="outline" size="sm" onClick={exportData} className="gap-1" title="Download the raw data (JSON) — a backup file for safekeeping or re-importing">
+        <Database size={14} /> Export Data (JSON)
       </Button>
       <Button size="sm" onClick={sendEmail} disabled={sending || sent} className="bg-sage-deep hover:bg-sage-deeper text-white gap-1">
         <Mail size={14} /> {sent ? 'Sent!' : sending ? 'Sending…' : 'Send to my email'}
