@@ -1,5 +1,13 @@
+export interface PersonalDetails {
+  age?: string
+  location?: string
+  relationship?: string
+  children?: string
+}
+
 export interface WizardAnswers {
   values: string[]
+  personalDetails?: PersonalDetails
   currentSituation: string
   futureVision: string
   focusArea: string
@@ -7,10 +15,21 @@ export interface WizardAnswers {
 }
 
 export function buildScenarioPrompt(answers: WizardAnswers): string {
+  const pd = answers.personalDetails
+  const personalSection = pd && Object.values(pd).some(v => v)
+    ? `- Personal context: ${[
+        pd.age && `Age: ${pd.age}`,
+        pd.location && `Location: ${pd.location}`,
+        pd.relationship && `Relationship: ${pd.relationship}`,
+        pd.children && `Children: ${pd.children}`,
+      ].filter(Boolean).join(', ')}`
+    : ''
+
   return `You are a thoughtful future scenario planner. Create a personalized, vivid future scenario for a person based on their answers below. The scenario should feel real, grounded, and personally meaningful – not generic.
 
 PERSON'S PROFILE:
 - Core values guiding their work: ${answers.values.join(', ')}
+${personalSection}
 - Current situation: ${answers.currentSituation}
 - Their vision for the future: ${answers.futureVision}
 - Main focus area: ${answers.focusArea}
@@ -20,7 +39,7 @@ Respond with a JSON object in this exact format:
 {
   "title": "A short, evocative name for this scenario (max 6 words, e.g. 'The Resilient Author' or 'Creative Independence')",
   "category": "one of: Growth, Transformation, Stability, Adventure, Purpose",
-  "scenario_text": "A rich 3-4 paragraph narrative written in second person ('you') describing the future in vivid detail. Reference specific things from their current situation and values. Paint the scene: what their daily life looks like, what they've achieved, how they feel. Include two 'Horizons' – Horizon 1 (first half of timeframe) and Horizon 2 (second half).",
+  "scenario_text": "A rich 3-4 paragraph narrative written in second person ('you') describing the future in vivid detail. Use **bold** for key milestones and achievements. Reference specific things from their current situation and values. Paint the scene: what their daily life looks like, what they've achieved, how they feel. Include two 'Horizons' – **Horizon 1** (first half of timeframe) and **Horizon 2** (second half).",
   "action_plan": [
     {
       "title": "Action item title",
@@ -32,9 +51,9 @@ Respond with a JSON object in this exact format:
   ],
   "future_artifacts": [
     {
-      "type": "News Article | Project Summary | Review | Blog Post",
+      "type": "one of exactly: Social Media Post | News Article | Podcast Episode | Book Review | Project Summary",
       "title": "Title of the imaginary artifact from the future",
-      "content": "2-3 sentences of content as if this artifact exists in their future",
+      "content": "2-3 sentences of content written AS IF this artifact exists in their future. For Social Media Post: write it as an actual post they would share. For News Article: write it as a real headline + opening paragraph.",
       "relevance": "One sentence explaining why this artifact matters to their journey"
     }
   ]
@@ -42,7 +61,8 @@ Respond with a JSON object in this exact format:
 
 Rules:
 - action_plan: 4-5 items, mix of short-term and medium-term
-- future_artifacts: 2-3 items, imaginative but grounded in their actual situation
+- future_artifacts: EXACTLY 3 items — always include one "Social Media Post" and one "News Article", plus one more of your choice
+- Use **bold** markdown in scenario_text for emphasis on key achievements and turning points
 - Write in English
 - Be specific to THIS person, not generic advice
 - Make it inspiring but realistic`

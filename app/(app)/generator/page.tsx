@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Sparkles, Loader2 } from 'lucide-react'
 
@@ -36,6 +37,7 @@ const TIMEFRAMES = [
 
 interface Answers {
   values: string[]
+  personalDetails: { age: string; location: string; relationship: string; children: string }
   currentSituation: string
   futureVision: string
   focusArea: string
@@ -44,11 +46,14 @@ interface Answers {
 
 const initialAnswers: Answers = {
   values: [],
+  personalDetails: { age: '', location: '', relationship: '', children: '' },
   currentSituation: '',
   futureVision: '',
   focusArea: '',
   timeframeYears: 3,
 }
+
+const TOTAL_STEPS = 5
 
 export default function GeneratorPage() {
   const router = useRouter()
@@ -70,9 +75,10 @@ export default function GeneratorPage() {
 
   function canAdvance() {
     if (step === 1) return answers.values.length > 0
-    if (step === 2) return answers.currentSituation.trim().length > 20
-    if (step === 3) return answers.futureVision.trim().length > 20
-    if (step === 4) return answers.focusArea !== '' && answers.timeframeYears > 0
+    if (step === 2) return true // personal details is optional
+    if (step === 3) return answers.currentSituation.trim().length > 20
+    if (step === 4) return answers.futureVision.trim().length > 20
+    if (step === 5) return answers.focusArea !== '' && answers.timeframeYears > 0
     return false
   }
 
@@ -99,6 +105,8 @@ export default function GeneratorPage() {
       <h1 className="text-2xl font-bold text-slate-800 mb-8">Future Scenario Generator</h1>
 
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+
+        {/* Step 1: Values */}
         {step === 1 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
@@ -133,7 +141,54 @@ export default function GeneratorPage() {
           </div>
         )}
 
+        {/* Step 2: Personal details (optional) */}
         {step === 2 && (
+          <div>
+            <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
+              <span>👤</span> About You <span className="text-slate-400 font-normal text-sm ml-1">(optional)</span>
+            </div>
+            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+              Adding personal context helps the AI create a more tailored scenario. All fields are optional – share only what feels relevant.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Age</label>
+                <Input
+                  placeholder="e.g. 38"
+                  value={answers.personalDetails.age}
+                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, age: e.target.value } }))}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Location</label>
+                <Input
+                  placeholder="e.g. Oslo, Norway"
+                  value={answers.personalDetails.location}
+                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, location: e.target.value } }))}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Relationship status</label>
+                <Input
+                  placeholder="e.g. Married, Single"
+                  value={answers.personalDetails.relationship}
+                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, relationship: e.target.value } }))}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Children</label>
+                <Input
+                  placeholder="e.g. 2 kids, ages 8 and 11"
+                  value={answers.personalDetails.children}
+                  onChange={e => setAnswers(p => ({ ...p, personalDetails: { ...p.personalDetails, children: e.target.value } }))}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Current situation */}
+        {step === 3 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>📍</span> Your Current Situation
@@ -148,13 +203,12 @@ export default function GeneratorPage() {
               placeholder="I'm currently working on... The challenges I face are... What's working well is..."
               className="min-h-[160px] resize-none"
             />
-            <p className="text-xs text-slate-400 mt-2">
-              {answers.currentSituation.length} characters (min 20)
-            </p>
+            <p className="text-xs text-slate-400 mt-2">{answers.currentSituation.length} characters (min 20)</p>
           </div>
         )}
 
-        {step === 3 && (
+        {/* Step 4: Future vision */}
+        {step === 4 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>✨</span> Your Future Vision
@@ -169,13 +223,12 @@ export default function GeneratorPage() {
               placeholder="I see myself... I've created... I feel... My days look like..."
               className="min-h-[160px] resize-none"
             />
-            <p className="text-xs text-slate-400 mt-2">
-              {answers.futureVision.length} characters (min 20)
-            </p>
+            <p className="text-xs text-slate-400 mt-2">{answers.futureVision.length} characters (min 20)</p>
           </div>
         )}
 
-        {step === 4 && (
+        {/* Step 5: Focus & timeframe */}
+        {step === 5 && (
           <div>
             <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-2">
               <span>🎯</span> Focus & Timeframe
@@ -184,7 +237,6 @@ export default function GeneratorPage() {
               Let&apos;s calibrate the scenario. What&apos;s your main focus area, and how far into the
               future should we look?
             </p>
-
             <div className="mb-6">
               <p className="text-sm font-medium text-slate-700 mb-3">Main focus area</p>
               <div className="flex flex-wrap gap-2">
@@ -204,7 +256,6 @@ export default function GeneratorPage() {
                 ))}
               </div>
             </div>
-
             <div>
               <p className="text-sm font-medium text-slate-700 mb-3">Timeframe</p>
               <div className="flex gap-2">
@@ -230,7 +281,7 @@ export default function GeneratorPage() {
         {loading && (
           <div className="mt-8 flex flex-col items-center gap-3 text-slate-500">
             <Loader2 size={32} className="animate-spin text-indigo-500" />
-            <p className="text-sm">Generating your scenario… this takes about 20 seconds</p>
+            <p className="text-sm">Generating your scenario and future artifacts… ~20 seconds</p>
           </div>
         )}
 
@@ -242,14 +293,14 @@ export default function GeneratorPage() {
           <div className="flex items-center justify-between mt-8">
             <button
               onClick={() => setStep(s => s - 1)}
-              className="text-slate-400 hover:text-slate-600 text-sm"
+              className="text-slate-400 hover:text-slate-600 text-sm disabled:opacity-30"
               disabled={step === 1}
             >
               Back
             </button>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-400">{step} / 4</span>
-              {step < 4 ? (
+              <span className="text-sm text-slate-400">{step} / {TOTAL_STEPS}</span>
+              {step < TOTAL_STEPS ? (
                 <Button
                   onClick={() => setStep(s => s + 1)}
                   disabled={!canAdvance()}

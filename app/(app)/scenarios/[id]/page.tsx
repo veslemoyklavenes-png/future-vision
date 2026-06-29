@@ -2,11 +2,26 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Newspaper, Share2, Mic } from 'lucide-react'
 import { formatDate, daysSince } from '@/lib/utils'
 import ActionPlan from '@/components/ActionPlan'
 import ExportButtons from '@/components/ExportButtons'
 import ReflectionSection from '@/components/ReflectionSection'
+import Markdown from '@/components/Markdown'
+
+const artifactIcons: Record<string, React.ReactNode> = {
+  'News Article': <Newspaper size={14} />,
+  'Social Media Post': <Share2 size={14} />,
+  'Podcast Episode': <Mic size={14} />,
+}
+
+const artifactColors: Record<string, string> = {
+  'News Article': 'bg-blue-50 text-blue-700',
+  'Social Media Post': 'bg-pink-50 text-pink-700',
+  'Podcast Episode': 'bg-orange-50 text-orange-700',
+  'Book Review': 'bg-green-50 text-green-700',
+  'Project Summary': 'bg-purple-50 text-purple-700',
+}
 
 export default async function ScenarioDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
@@ -37,7 +52,7 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
         <h1 className="text-2xl font-bold text-slate-800 mb-2">{scenario.title}</h1>
         <div className="flex justify-center gap-2 mb-4">
           <Badge variant="outline">{scenario.category}</Badge>
-          <Badge variant="secondary">{scenario.category === 'Transformation' ? 'lifestyle' : 'lifestyle'}</Badge>
+          <Badge variant="secondary">lifestyle</Badge>
         </div>
         <ExportButtons scenarioId={scenario.id} userEmail={user.email ?? ''} />
       </div>
@@ -47,9 +62,7 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
         <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-4">
           <Sparkles size={18} /> Future Scenario
         </div>
-        <div className="text-slate-700 leading-relaxed whitespace-pre-wrap text-sm">
-          {scenario.scenario_text}
-        </div>
+        <Markdown content={scenario.scenario_text} />
       </div>
 
       {/* Action Plan */}
@@ -63,15 +76,15 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
           <div className="flex items-center gap-2 text-indigo-600 font-semibold mb-4">
             <Sparkles size={18} /> Future Artifacts
           </div>
-          <div className="space-y-6">
+          <div className="space-y-5">
             {scenario.future_artifacts.map((artifact: { type: string; title: string; content: string; relevance: string }, i: number) => (
-              <div key={i}>
-                <span className="inline-block text-xs font-medium bg-indigo-50 text-indigo-700 rounded-full px-3 py-1 mb-2">
-                  {artifact.type}
+              <div key={i} className="border border-slate-100 rounded-xl p-4">
+                <span className={`inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1 mb-2 ${artifactColors[artifact.type] ?? 'bg-slate-50 text-slate-600'}`}>
+                  {artifactIcons[artifact.type]} {artifact.type}
                 </span>
                 <h3 className="font-semibold text-slate-800 mb-1">{artifact.title}</h3>
-                <p className="text-sm text-slate-600 mb-1">{artifact.content}</p>
-                <p className="text-xs text-slate-400 italic">Relevance: {artifact.relevance}</p>
+                <p className="text-sm text-slate-600 mb-2 leading-relaxed">{artifact.content}</p>
+                <p className="text-xs text-slate-400 italic border-t border-slate-100 pt-2">{artifact.relevance}</p>
               </div>
             ))}
           </div>
