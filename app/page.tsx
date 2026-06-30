@@ -31,7 +31,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-sage-light/50 to-cream text-ink">
       {/* Nav */}
       <header className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
-        <span className="font-serif text-xl text-ink">Stories for the Future</span>
+        <span className="font-serif text-xl text-ink">FutureVision</span>
         <Link href="/login" className="text-sm text-sage-deep font-medium hover:underline">
           Sign in
         </Link>
@@ -124,7 +124,7 @@ export default function LandingPage() {
               reality — without me consciously chasing it. I&apos;d simply seen it clearly, and started
               noticing the way there.&rdquo;
             </blockquote>
-            <figcaption className="text-sm text-ink-soft mt-3">— From the maker of Stories for the Future</figcaption>
+            <figcaption className="text-sm text-ink-soft mt-3">— Veslemøy</figcaption>
           </figure>
         </div>
       </section>
@@ -146,7 +146,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-border">
         <div className="max-w-5xl mx-auto px-6 py-8 text-center text-sm text-ink-soft">
-          Stories for the Future — see your future, then build it.
+          FutureVision — part of Stories for the Future
           <span className="mx-2">·</span>
           <Link href="/privacy" className="text-sage-deep hover:underline">Privacy</Link>
         </div>

@@ -36,7 +36,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-3 w-12 h-12 rounded-full bg-sage-light flex items-center justify-center">
             <Sparkles size={24} className="text-sage-deep" />
           </div>
-          <h1 className="text-2xl font-serif text-ink">Stories for the Future</h1>
+          <h1 className="text-2xl font-serif text-ink">FutureVision</h1>
           <p className="text-ink-muted text-sm mt-1">Sign in to your account</p>
         </div>
 

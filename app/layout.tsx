@@ -10,7 +10,7 @@ const cormorant = Cormorant_Garamond({
 })
 
 export const metadata: Metadata = {
-  title: 'Stories for the Future – See your future, then build it',
+  title: 'FutureVision – See your future, then build it',
   description: 'Create your personalized future scenario and action plan with AI.',
 }
 

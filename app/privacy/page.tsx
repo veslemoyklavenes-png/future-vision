@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Privacy Policy – Stories for the Future',
+  title: 'Privacy Policy – FutureVision',
 }
 
 const lastUpdated = 'June 2026'
@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-cream text-ink">
       <header className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
-        <Link href="/" className="font-serif text-xl text-ink">Stories for the Future</Link>
+        <Link href="/" className="font-serif text-xl text-ink">FutureVision</Link>
         <Link href="/login" className="text-sm text-sage-deep font-medium hover:underline">Sign in</Link>
       </header>
 
@@ -21,8 +21,8 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-ink-muted leading-relaxed">
           <section>
             <p>
-              Stories for the Future (&ldquo;we&rdquo;, &ldquo;the app&rdquo;) helps you create personalized
-              future scenarios. This policy explains what personal data we collect, why, where it is stored,
+              FutureVision (&ldquo;we&rdquo;, &ldquo;the app&rdquo;), part of the Stories for the Future
+              project, helps you create personalized future scenarios. This policy explains what personal data we collect, why, where it is stored,
               and the rights you have over it. We aim to collect as little as possible.
             </p>
           </section>
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="font-serif text-2xl text-ink mb-3">Who is responsible</h2>
             <p>
-              The data controller is the operator of Stories for the Future. For any privacy question or
+              The data controller is the operator of FutureVision. For any privacy question or
               request, contact us at{' '}
               <a href="mailto:veslemoy.klavenes@gmail.com" className="text-sage-deep font-medium hover:underline">
                 veslemoy.klavenes@gmail.com

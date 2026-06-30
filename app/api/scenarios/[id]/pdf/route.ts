@@ -122,7 +122,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       <p>${escapeHtml(a.content ?? '')}</p>
     </div>`).join('')}` : ''}
 
-  <div class="footer">Stories for the Future — see your future, then build it.</div>
+  <div class="footer">FutureVision — see your future, then build it.</div>
 
   <script>
     // Open the print dialog automatically once fonts have settled.

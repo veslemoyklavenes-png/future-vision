@@ -25,7 +25,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-sage-deep text-white/90 flex flex-col shrink-0">
       <div className="p-6 border-b border-white/15">
-        <h1 className="text-xl font-serif font-semibold tracking-wide text-white">Stories for the Future</h1>
+        <h1 className="text-xl font-serif font-semibold tracking-wide text-white">FutureVision</h1>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
