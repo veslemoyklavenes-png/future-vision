@@ -43,5 +43,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
+  // Exclude Next internals, the API, and any path containing a dot (static
+  // assets like icon.svg) so favicons/images aren't redirected to /login.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api|.*\\.).*)'],
 }
