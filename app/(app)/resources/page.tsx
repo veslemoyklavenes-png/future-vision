@@ -139,7 +139,7 @@ const sections: Section[] = [
 
 export default function ResourcesPage() {
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <h1 className="text-3xl font-serif text-ink mb-2">Resources</h1>
       <p className="text-ink-muted mb-10 leading-relaxed">
         Futures thinking is a real, practiced discipline — not fortune-telling. These are the

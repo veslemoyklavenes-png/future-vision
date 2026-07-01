@@ -236,7 +236,7 @@ export default function GeneratorPage() {
     <div className="min-h-screen flex flex-col items-center justify-start py-12 px-4 bg-gradient-to-b from-sage-light/50 to-cream">
       <h1 className="text-2xl font-bold text-ink mb-8">Future Scenario Generator</h1>
 
-      <div className="w-full max-w-2xl bg-card rounded-2xl shadow-sm border border-border p-8">
+      <div className="w-full max-w-2xl bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-8">
 
         {step === 1 && (
           <div>
@@ -287,7 +287,7 @@ export default function GeneratorPage() {
             <p className="text-ink-muted mb-6 text-sm leading-relaxed">
               Personal context helps the AI create a more tailored scenario. All fields are optional.
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { label: 'Age', key: 'age', placeholder: 'e.g. 38' },
                 { label: 'Gender', key: 'gender', placeholder: 'e.g. Woman' },

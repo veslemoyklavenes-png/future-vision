@@ -47,7 +47,7 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
   const showReflection = age >= 30
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-3xl mx-auto">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-serif text-ink mb-2">{scenario.title}</h1>
         <div className="flex justify-center gap-2 mb-4">

@@ -20,7 +20,7 @@ export default async function ScenariosPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-5xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-serif text-ink">Your Scenarios</h1>
         <p className="text-ink-muted mt-1">View, compare, and track progress over time.</p>
