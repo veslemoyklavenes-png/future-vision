@@ -8,11 +8,17 @@ function Progress({
   className,
   children,
   value,
+  // Base UI formats aria-valuetext with Intl.NumberFormat, defaulting to the
+  // runtime locale. That differs between the server (en-US, "0%") and a browser
+  // set to Norwegian ("0 %"), which trips React's hydration check. Pinning the
+  // locale keeps both sides identical, and en-US matches the English UI.
+  locale = "en-US",
   ...props
 }: ProgressPrimitive.Root.Props) {
   return (
     <ProgressPrimitive.Root
       value={value}
+      locale={locale}
       data-slot="progress"
       className={cn("flex flex-wrap gap-3", className)}
       {...props}
