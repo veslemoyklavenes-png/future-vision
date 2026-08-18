@@ -51,13 +51,20 @@ export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId:
               onCheckedChange={() => toggle(item.id, item.completed)}
               className="mt-0.5 shrink-0"
             />
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h3 className={cn('font-semibold text-ink mb-1', item.completed && 'line-through text-ink-soft')}>
                 {item.title}
               </h3>
               <p className="text-sm text-ink-muted mb-2">{item.description}</p>
-              <div className="flex gap-2 mb-2">
-                <Badge variant="outline" className="text-xs">⏱ {item.timeline}</Badge>
+              <div className="flex flex-wrap items-start gap-2 mb-2">
+                {/* Generated timelines are full sentences, so this badge has to
+                    wrap and grow instead of staying a fixed-height pill. */}
+                <Badge
+                  variant="outline"
+                  className="text-xs h-auto min-w-0 shrink whitespace-normal text-left rounded-lg py-1 leading-snug"
+                >
+                  ⏱ {item.timeline}
+                </Badge>
                 <Badge
                   variant="outline"
                   className={cn('text-xs', item.priority === 'high' ? 'border-red-200 text-red-600 bg-red-50' : 'border-yellow-200 text-yellow-700 bg-yellow-50')}
