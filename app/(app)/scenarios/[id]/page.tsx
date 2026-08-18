@@ -8,6 +8,7 @@ import ActionPlan from '@/components/ActionPlan'
 import ExportButtons from '@/components/ExportButtons'
 import ReflectionSection from '@/components/ReflectionSection'
 import Markdown from '@/components/Markdown'
+import DeleteScenarioButton from '@/components/DeleteScenarioButton'
 
 const artifactIcons: Record<string, React.ReactNode> = {
   'News Article': <Newspaper size={14} />,
@@ -101,7 +102,10 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
         />
       )}
 
-      <p className="text-center text-xs text-slate-400 mt-6">Created {formatDate(scenario.created_at)}</p>
+      <div className="mt-6 flex flex-col items-center gap-2">
+        <p className="text-xs text-slate-400">Created {formatDate(scenario.created_at)}</p>
+        <DeleteScenarioButton scenarioId={scenario.id} redirectTo="/scenarios" variant="inline" />
+      </div>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
 import { Sparkles } from 'lucide-react'
+import DeleteScenarioButton from '@/components/DeleteScenarioButton'
 import { cn } from '@/lib/utils'
 
 export default async function ScenariosPage() {
@@ -37,7 +38,7 @@ export default async function ScenariosPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {scenarios.map(s => (
-            <div key={s.id} className="bg-card rounded-xl border border-border p-5 flex flex-col gap-3 shadow-sm">
+            <div key={s.id} className="relative bg-card rounded-xl border border-border p-5 flex flex-col gap-3 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <h2 className="font-serif text-ink text-lg leading-tight">{s.title}</h2>
                 <Badge variant="secondary" className="shrink-0">{s.category}</Badge>
@@ -45,9 +46,12 @@ export default async function ScenariosPage() {
               <p className="text-sm text-ink-muted line-clamp-3">{s.scenario_text}</p>
               <div className="flex items-center justify-between mt-auto pt-2">
                 <span className="text-xs text-ink-soft">Updated {formatDate(s.created_at)}</span>
-                <Link href={`/scenarios/${s.id}`} className={cn(buttonVariants({ size: 'sm' }), 'bg-sage-deep hover:bg-sage-deeper text-white gap-1')}>
-                  <Sparkles size={12} /> Open
-                </Link>
+                <div className="flex items-center gap-1">
+                  <Link href={`/scenarios/${s.id}`} className={cn(buttonVariants({ size: 'sm' }), 'bg-sage-deep hover:bg-sage-deeper text-white gap-1')}>
+                    <Sparkles size={12} /> Open
+                  </Link>
+                  <DeleteScenarioButton scenarioId={s.id} />
+                </div>
               </div>
             </div>
           ))}
