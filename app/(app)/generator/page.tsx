@@ -1,12 +1,12 @@
 'use client'
 export const dynamic = 'force-dynamic'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { Sparkles, Loader2, Check } from 'lucide-react'
+import { Sparkles, Loader2, Check, RefreshCw } from 'lucide-react'
 import type { FutureArtifact } from '@/lib/prompts'
 
 const VALUES = [
@@ -65,6 +65,66 @@ export default function GeneratorPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [customValue, setCustomValue] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingTitle, setEditingTitle] = useState('')
+  const [hydrating, setHydrating] = useState(false)
+  const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null)
+
+  // Two ways in. With ?scenario=<id> we rehydrate that scenario for editing.
+  // Without it we still prefill from the most recent answers — typing them is
+  // the slowest part of the whole app, and small variations are the common case.
+  useEffect(() => {
+    function applyStoredAnswers(stored: Partial<Answers>) {
+      const storedValues = stored.values ?? []
+      // A value typed into "Other" isn't in the preset list — put it back in
+      // the custom field instead of silently dropping it.
+      const known = storedValues.filter(v => VALUES.includes(v))
+      const custom = storedValues.find(v => !VALUES.includes(v))
+      setAnswers({
+        ...initialAnswers,
+        ...stored,
+        values: custom ? [...known, 'Other'] : known,
+        personalDetails: { ...initialAnswers.personalDetails, ...(stored.personalDetails ?? {}) },
+      })
+      setCustomValue(custom ?? '')
+    }
+
+    const id = new URLSearchParams(window.location.search).get('scenario')
+    setHydrating(true)
+
+    const load = id
+      ? fetch(`/api/scenarios/${id}`)
+          .then(res => (res.ok ? res.json() : Promise.reject(new Error('That scenario could not be loaded.'))))
+          .then(scenario => {
+            applyStoredAnswers((scenario.wizard_answers ?? {}) as Partial<Answers>)
+            const saved = ((scenario.future_artifacts ?? []) as FutureArtifact[])
+              .map((a, i) => ({ ...a, id: a.id ?? String(i + 1) }))
+            setArtifacts(saved)
+            setSelected(saved.map(a => a.id))
+            setEditingId(scenario.id)
+            setEditingTitle(scenario.title ?? '')
+          })
+      : fetch('/api/wizard-defaults')
+          .then(res => (res.ok ? res.json() : { answers: null }))
+          .then((data: { answers?: Partial<Answers> | null; from?: string | null }) => {
+            if (!data.answers) return
+            applyStoredAnswers(data.answers)
+            setPrefilledFrom(data.from || 'your last scenario')
+          })
+
+    load
+      // A failed prefill is not worth an error message — an empty form is a
+      // perfectly good starting point. A failed edit load is.
+      .catch((e: Error) => { if (id) setError(e.message) })
+      .finally(() => setHydrating(false))
+  }, [])
+
+  function startBlank() {
+    setAnswers(initialAnswers)
+    setCustomValue('')
+    setPrefilledFrom(null)
+    setStep(1)
+  }
 
   function toggleValue(v: string) {
     setAnswers(prev => ({
@@ -103,6 +163,16 @@ export default function GeneratorPage() {
     return false
   }
 
+  function isComplete() {
+    return (
+      resolvedValues().length > 0 &&
+      answers.currentSituation.trim().length > 20 &&
+      answers.futureVision.trim().length > 20 &&
+      answers.focusArea !== '' &&
+      answers.timeframeYears > 0
+    )
+  }
+
   async function generateArtifacts() {
     setLoading(true)
     setError('')
@@ -120,6 +190,7 @@ export default function GeneratorPage() {
         throw new Error(data.error ?? `Request failed (HTTP ${res.status})${snippet}`)
       }
       setArtifacts(data.artifacts)
+      setSelected([])
       setPhase('pick-artifacts')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
@@ -136,7 +207,12 @@ export default function GeneratorPage() {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: { ...answers, values: resolvedValues() }, selectedArtifacts }),
+        body: JSON.stringify({
+          answers: { ...answers, values: resolvedValues() },
+          selectedArtifacts,
+          // Present when regenerating: the API replaces this scenario in place.
+          scenarioId: editingId ?? undefined,
+        }),
       })
       const raw = await res.text()
       let data: { error?: string; id?: string } = {}
@@ -146,6 +222,7 @@ export default function GeneratorPage() {
         throw new Error(data.error ?? `Request failed (HTTP ${res.status})${snippet}`)
       }
       router.push(`/scenarios/${data.id}`)
+      router.refresh()
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
       setPhase('pick-artifacts')
@@ -210,7 +287,7 @@ export default function GeneratorPage() {
               disabled={selected.length < 3}
               className="bg-sage-deep hover:bg-sage-deeper text-white gap-2 px-8"
             >
-              <Sparkles size={16} /> Generate my scenario
+              <Sparkles size={16} /> {editingId ? 'Replace my scenario' : 'Generate my scenario'}
             </Button>
           </div>
         </div>
@@ -231,10 +308,51 @@ export default function GeneratorPage() {
     )
   }
 
+  // ── Loading a saved scenario into the wizard ───────────────────────
+  if (hydrating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sage-light/50 to-cream">
+        <div className="text-center">
+          <Loader2 size={40} className="animate-spin text-sage-deep mx-auto mb-4" />
+          <p className="text-ink-muted text-sm">Loading your answers…</p>
+        </div>
+      </div>
+    )
+  }
+
   // ── Wizard phase ───────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-12 px-4 bg-gradient-to-b from-sage-light/50 to-cream">
-      <h1 className="text-2xl font-bold text-ink mb-8">Future Scenario Generator</h1>
+      <h1 className="text-2xl font-bold text-ink mb-4">
+        {editingId ? 'Work on this scenario' : 'Future Scenario Generator'}
+      </h1>
+
+      {!editingId && prefilledFrom && (
+        <div className="w-full max-w-2xl mb-6 rounded-xl border border-border bg-cream/60 px-4 py-3 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm text-ink">
+              Filled in from <strong>{prefilledFrom}</strong>
+            </p>
+            <p className="text-xs text-ink-soft mt-0.5">
+              Change whatever you like — this becomes a new scenario and leaves the old one alone.
+            </p>
+          </div>
+          <button onClick={startBlank} className="text-sm text-ink-soft hover:text-ink-muted whitespace-nowrap">
+            Start blank
+          </button>
+        </div>
+      )}
+
+      {editingId && (
+        <div className="w-full max-w-2xl mb-6 rounded-xl border border-sage-mid/40 bg-sage-light/40 px-4 py-3">
+          <p className="text-sm text-ink">
+            Editing <strong>{editingTitle}</strong>
+          </p>
+          <p className="text-xs text-ink-soft mt-0.5">
+            Your original answers are loaded. Regenerating replaces this scenario — the earlier version is not kept.
+          </p>
+        </div>
+      )}
 
       <div className="w-full max-w-2xl bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-8">
 
@@ -413,11 +531,41 @@ export default function GeneratorPage() {
                 <Button onClick={() => setStep(s => s + 1)} disabled={!canAdvance()} className="bg-sage-deep hover:bg-sage-deeper text-white">
                   Next
                 </Button>
-              ) : (
+              ) : editingId ? null : (
                 <Button onClick={generateArtifacts} disabled={!canAdvance()} className="bg-sage-deep hover:bg-sage-deeper text-white gap-2">
                   <Sparkles size={16} /> Generate artifacts
                 </Button>
               )}
+            </div>
+          </div>
+        )}
+
+        {editingId && !loading && (
+          <div className="mt-8 pt-5 border-t border-border">
+            <p className="text-xs text-ink-soft mb-3">
+              Adjust anything above, then choose how far back to go.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                onClick={generateScenario}
+                disabled={!isComplete() || selected.length === 0}
+                className="bg-sage-deep hover:bg-sage-deeper text-white gap-2"
+                title="Keeps your three chosen artifacts and rewrites the scenario — about 20 seconds"
+              >
+                <RefreshCw size={16} /> Regenerate scenario
+              </Button>
+              <Button
+                variant="outline"
+                onClick={generateArtifacts}
+                disabled={!isComplete()}
+                className="gap-2"
+                title="Generates six new artifacts so you can choose three again"
+              >
+                <Sparkles size={16} /> Pick new artifacts
+              </Button>
+              <a href={`/scenarios/${editingId}`} className="text-sm text-ink-soft hover:text-ink-muted ml-auto">
+                Cancel
+              </a>
             </div>
           </div>
         )}

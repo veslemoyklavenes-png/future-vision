@@ -2,7 +2,10 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import { Sparkles, Newspaper, Share2, Mic } from 'lucide-react'
+import Link from 'next/link'
+import { Sparkles, Newspaper, Share2, Mic, Pencil } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { formatDate, daysSince } from '@/lib/utils'
 import ActionPlan from '@/components/ActionPlan'
 import ExportButtons from '@/components/ExportButtons'
@@ -53,9 +56,16 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
         <h1 className="text-3xl font-serif text-ink mb-2">{scenario.title}</h1>
         <div className="flex justify-center gap-2 mb-4">
           <Badge variant="outline">{scenario.category}</Badge>
-          <Badge variant="secondary">lifestyle</Badge>
         </div>
-        <ExportButtons scenarioId={scenario.id} userEmail={user.email ?? ''} />
+        <div className="flex flex-col items-center gap-3">
+          <ExportButtons scenarioId={scenario.id} userEmail={user.email ?? ''} />
+          <Link
+            href={`/generator?scenario=${scenario.id}`}
+            className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'gap-1 text-ink-muted')}
+          >
+            <Pencil size={14} /> Work on this scenario
+          </Link>
+        </div>
       </div>
 
       {/* Future Scenario */}
