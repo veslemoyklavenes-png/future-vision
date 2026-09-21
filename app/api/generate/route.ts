@@ -12,10 +12,20 @@ import {
   Timeline,
 } from '@/lib/prompts'
 
-export const maxDuration = 60
+// Hobby allows 300s; the old 60s ceiling was self-imposed and is what the
+// retry loop ran into. The budget below is what actually bounds the wait —
+// maxDuration is only the outer safety net.
+export const maxDuration = 300
+
+/** Stop starting new attempts after this; the person is watching a spinner. */
+const RETRY_BUDGET_MS = 120_000
+/** No single model call may eat the whole budget. */
+const CALL_TIMEOUT_MS = 70_000
 export const dynamic = 'force-dynamic'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// The SDK retries internally too; keeping that low stops the two retry
+// layers from multiplying into minutes of waiting.
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 1 })
 
 interface ParsedScenario {
   title: string
@@ -25,27 +35,40 @@ interface ParsedScenario {
 }
 
 /**
- * Retry the model call + parse so a transient hiccup, a non-JSON reply, or a
- * narrative that wandered past the chosen horizon doesn't reach the user.
+ * Retry the model call + parse so a transient hiccup or a non-JSON reply
+ * doesn't reach the user — but within a time budget, because a 504 is a worse
+ * outcome than a scenario with one date slightly off.
  */
 async function generateScenarioWithRetry(prompt: string, timeline: Timeline, attempts = 3): Promise<ParsedScenario> {
+  const deadline = Date.now() + RETRY_BUDGET_MS
   let lastError: unknown
+  // A parsed scenario that only failed the date check. Good enough to return
+  // if we run out of time or attempts — never thrown away.
+  let driftedFallback: ParsedScenario | undefined
+
   for (let i = 0; i < attempts; i++) {
+    const remaining = deadline - Date.now()
+    // Don't start an attempt there isn't time to finish.
+    if (i > 0 && remaining < 35_000) break
+
     try {
-      const message = await anthropic.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2800,
-        system: foundationsSystem(),
-        messages: [{ role: 'user', content: prompt }],
-      })
+      const message = await anthropic.messages.create(
+        {
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2800,
+          system: foundationsSystem(),
+          messages: [{ role: 'user', content: prompt }],
+        },
+        { timeout: Math.min(CALL_TIMEOUT_MS, Math.max(remaining, 20_000)) }
+      )
       const text = message.content[0].type === 'text' ? message.content[0].text : ''
       const jsonMatch = text.match(/\{[\s\S]*\}/)
       if (!jsonMatch) throw new Error('No JSON object in response')
       const parsed = JSON.parse(jsonMatch[0]) as ParsedScenario
       if (!parsed.scenario_text) throw new Error('No scenario text in response')
-      // Only worth rejecting while we still have an attempt left; on the last
-      // pass a slightly-off date beats no scenario at all.
-      if (hasDateDrift(parsed.scenario_text, timeline) && i < attempts - 1) {
+
+      if (hasDateDrift(parsed.scenario_text, timeline)) {
+        driftedFallback ??= parsed
         throw new Error('Scenario drifted past the chosen horizon')
       }
       return parsed
@@ -53,6 +76,8 @@ async function generateScenarioWithRetry(prompt: string, timeline: Timeline, att
       lastError = err
     }
   }
+
+  if (driftedFallback) return driftedFallback
   throw lastError
 }
 
