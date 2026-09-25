@@ -36,5 +36,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { error } = await supabase.from('action_items').update(update).eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  // A cue the person wrote is a fact about their week, not about this one
+  // action. Keep it on the account so a regenerated plan can reuse it.
+  if (typeof update.cue === 'string' && update.cue.length > 0) {
+    await supabase
+      .from('user_cues')
+      .upsert({ user_id: user.id, text: update.cue }, { onConflict: 'user_id,text', ignoreDuplicates: true })
+  }
+
   return NextResponse.json({ ok: true })
 }

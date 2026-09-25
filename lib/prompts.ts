@@ -174,9 +174,24 @@ Use these types (at least one of each of the first two, then vary the rest):
 All 6 must feel like genuine artifacts from ${timeline.targetLabel}, not vague descriptions. Be concrete and specific — real-sounding names, numbers, and details rather than generic statements. Do NOT assume the person's gender, a spouse/partner, or children unless stated in their profile above.`
 }
 
-export function buildScenarioPrompt(answers: WizardAnswers, selectedArtifacts: FutureArtifact[]): string {
+export function buildScenarioPrompt(
+  answers: WizardAnswers,
+  selectedArtifacts: FutureArtifact[],
+  /** Occasions the person has written themselves. Verified, unlike anything
+   *  the model would invent — so they take precedence. */
+  knownOccasions: string[] = []
+): string {
   const timeline = buildTimeline(answers.timeframeYears)
   const pd = personalContext(answers.personalDetails)
+
+  const occasionsSection = knownOccasions.length
+    ? `
+OCCASIONS THIS PERSON HAS WRITTEN IN THEIR OWN WORDS:
+${knownOccasions.map(o => `- ${o}`).join('\n')}
+
+These are real moments in their week — they corrected an earlier guess to write them. When an action in your plan could plausibly happen on one of these, use that wording verbatim as its "cue". Only write a new cue when none of them fit.
+`
+    : ''
 
   const artifactsSection = selectedArtifacts.map((a, i) =>
     `Artifact ${i + 1} [${a.type}]: "${a.title}" — ${a.content}`
@@ -196,6 +211,7 @@ ${answers.obstacle ? `- In their own words, what gets in their way: "${answers.o
 
 THE 3 FUTURE ARTIFACTS THEY CHOSE (these are windows into their future — build the scenario around them):
 ${artifactsSection}
+${occasionsSection}
 
 ${VOICE}
 

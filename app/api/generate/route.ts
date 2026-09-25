@@ -96,18 +96,38 @@ export async function POST(req: NextRequest) {
 
   // Regenerating an existing scenario: confirm it's this user's before we
   // spend a model call on it.
+  let keptCopingPlan: string | null = null
+
   if (scenarioId) {
     const { data: existing } = await supabase
       .from('scenarios')
-      .select('id')
+      .select('id, coping_plan, wizard_answers')
       .eq('id', scenarioId)
       .eq('user_id', user.id)
       .single()
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    // The coping plan answers the obstacle, not the narrative. If the obstacle
+    // is unchanged there is nothing to rewrite — and the wording may well be
+    // the person's own by now.
+    const previousObstacle = (existing.wizard_answers as { obstacle?: string } | null)?.obstacle ?? ''
+    if (existing.coping_plan && previousObstacle.trim() === (answers.obstacle ?? '').trim()) {
+      keptCopingPlan = existing.coping_plan as string
+    }
   }
 
   const timeline = buildTimeline(answers.timeframeYears)
-  const prompt = buildScenarioPrompt(answers, selectedArtifacts)
+
+  // The person's own occasions outlive the action items they were attached to.
+  const { data: cueRows } = await supabase
+    .from('user_cues')
+    .select('text')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(8)
+
+  const knownOccasions = (cueRows ?? []).map(row => row.text as string)
+  const prompt = buildScenarioPrompt(answers, selectedArtifacts, knownOccasions)
 
   let parsed: ParsedScenario
   try {
@@ -128,7 +148,7 @@ export async function POST(req: NextRequest) {
     scenario_text: parsed.scenario_text,
     // Cleared rather than left stale when a regeneration drops the obstacle.
     obstacle_reflection: parsed.obstacle_reflection ?? null,
-    coping_plan: parsed.coping_plan ?? null,
+    coping_plan: keptCopingPlan ?? parsed.coping_plan ?? null,
     future_artifacts: selectedArtifacts,
     wizard_answers: answers,
   }

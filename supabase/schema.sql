@@ -32,12 +32,26 @@ CREATE TABLE IF NOT EXISTS action_items (
   sort_order INTEGER DEFAULT 0
 );
 
+-- Occasions the person has written themselves, kept on the account so they
+-- survive a regeneration of the action plan.
+CREATE TABLE IF NOT EXISTS user_cues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  text TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (user_id, text)
+);
+
 -- Row Level Security
 ALTER TABLE scenarios ENABLE ROW LEVEL SECURITY;
 ALTER TABLE action_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_cues ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can only see their own scenarios"
   ON scenarios FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can only see their own cues"
+  ON user_cues FOR ALL USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can only see their own action items"
   ON action_items FOR ALL USING (
