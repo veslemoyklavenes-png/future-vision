@@ -39,6 +39,7 @@ interface Answers {
   personalDetails: { age: string; gender: string; location: string; relationship: string; children: string }
   currentSituation: string
   futureVision: string
+  obstacle: string
   focusArea: string
   timeframeYears: number
 }
@@ -48,12 +49,13 @@ const initialAnswers: Answers = {
   personalDetails: { age: '', gender: '', location: '', relationship: '', children: '' },
   currentSituation: '',
   futureVision: '',
+  obstacle: '',
   focusArea: '',
   timeframeYears: 3,
 }
 
 type Phase = 'wizard' | 'pick-artifacts' | 'generating'
-const WIZARD_STEPS = 5
+const WIZARD_STEPS = 6
 
 export default function GeneratorPage() {
   const router = useRouter()
@@ -159,7 +161,8 @@ export default function GeneratorPage() {
     if (step === 2) return true
     if (step === 3) return answers.currentSituation.trim().length > 20
     if (step === 4) return answers.futureVision.trim().length > 20
-    if (step === 5) return answers.focusArea !== '' && answers.timeframeYears > 0
+    if (step === 5) return answers.obstacle.trim().length > 15
+    if (step === 6) return answers.focusArea !== '' && answers.timeframeYears > 0
     return false
   }
 
@@ -168,6 +171,7 @@ export default function GeneratorPage() {
       resolvedValues().length > 0 &&
       answers.currentSituation.trim().length > 20 &&
       answers.futureVision.trim().length > 20 &&
+      answers.obstacle.trim().length > 15 &&
       answers.focusArea !== '' &&
       answers.timeframeYears > 0
     )
@@ -463,6 +467,29 @@ export default function GeneratorPage() {
         )}
 
         {step === 5 && (
+          <div>
+            <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
+              <span>⛰️</span> What&apos;s In The Way
+            </div>
+            <p className="text-ink-muted mb-2 text-sm leading-relaxed">
+              You&apos;ve just described where you&apos;d like to get to. Now the other half of the picture.
+            </p>
+            <p className="text-ink-muted mb-6 text-sm leading-relaxed">
+              Not the circumstances — those are real, and they&apos;re already in what you wrote above.
+              This is about what happens in you. The hesitation, the thing you do instead,
+              the point where you usually stop.
+            </p>
+            <Textarea
+              value={answers.obstacle}
+              onChange={e => setAnswers(prev => ({ ...prev, obstacle: e.target.value }))}
+              placeholder="I keep waiting until it feels ready… I say yes to everyone else&apos;s projects first… I lose the thread after a few weeks…"
+              className="min-h-[140px] resize-none"
+            />
+            <p className="text-xs text-ink-soft mt-2">{answers.obstacle.length} characters (min 15)</p>
+          </div>
+        )}
+
+        {step === 6 && (
           <div>
             <div className="flex items-center gap-2 text-sage-deep font-semibold mb-2">
               <span>🎯</span> Focus & Timeframe

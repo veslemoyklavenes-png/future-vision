@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const { data: scenario } = await supabase
     .from('scenarios')
-    .select('title, category, scenario_text, action_items(*)')
+    .select('title, category, scenario_text, obstacle_reflection, wizard_answers, action_items(*)')
     .eq('id', scenarioId)
     .eq('user_id', user.id)
     .single()
@@ -37,6 +37,12 @@ export async function POST(req: NextRequest) {
         <div style="background: #f8fafc; border-radius: 8px; padding: 20px; font-size: 15px; line-height: 1.7;">
           ${scenario.scenario_text.replace(/\n/g, '<br>')}
         </div>
+
+        ${scenario.obstacle_reflection ? `
+          <h2>What&rsquo;s In The Way</h2>
+          <div style="border-left: 3px solid #cbd5e1; padding-left: 16px; font-size: 15px; line-height: 1.7; color: #475569;">
+            ${scenario.obstacle_reflection.replace(/\n/g, '<br>')}
+          </div>` : ''}
 
         <h2>Action Plan</h2>
         <ul style="line-height: 2;">

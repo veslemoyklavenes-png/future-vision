@@ -31,6 +31,7 @@ interface ParsedScenario {
   title: string
   category: string
   scenario_text: string
+  obstacle_reflection?: string
   action_plan?: { title: string; description: string; timeline?: string; priority?: string; sub_tasks?: string[] }[]
 }
 
@@ -124,6 +125,8 @@ export async function POST(req: NextRequest) {
     title: parsed.title,
     category: parsed.category,
     scenario_text: parsed.scenario_text,
+    // Cleared rather than left stale when a regeneration drops the obstacle.
+    obstacle_reflection: parsed.obstacle_reflection ?? null,
     future_artifacts: selectedArtifacts,
     wizard_answers: answers,
   }

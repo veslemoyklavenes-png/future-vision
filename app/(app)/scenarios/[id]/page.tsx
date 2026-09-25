@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { Sparkles, Newspaper, Share2, Mic, Pencil } from 'lucide-react'
+import { Sparkles, Newspaper, Share2, Mic, Pencil, Mountain } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { formatDate, daysSince } from '@/lib/utils'
@@ -75,6 +75,21 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
         </div>
         <Markdown content={scenario.scenario_text} />
       </div>
+
+      {/* What's in the way — the other half of the picture */}
+      {scenario.obstacle_reflection && (
+        <div className="bg-card rounded-2xl border border-border border-l-4 border-l-ink-soft/40 p-6 mb-4 shadow-sm">
+          <div className="flex items-center gap-2 text-ink-muted font-semibold mb-4">
+            <Mountain size={18} /> What&apos;s In The Way
+          </div>
+          {scenario.wizard_answers?.obstacle && (
+            <blockquote className="text-sm text-ink-soft italic border-l-2 border-border pl-4 mb-4 leading-relaxed">
+              {scenario.wizard_answers.obstacle}
+            </blockquote>
+          )}
+          <Markdown content={scenario.obstacle_reflection} />
+        </div>
+      )}
 
       {/* Action Plan */}
       {actionItems && actionItems.length > 0 && (

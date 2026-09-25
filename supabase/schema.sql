@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
   wizard_answers JSONB DEFAULT '{}',
   reflection JSONB DEFAULT NULL,
   reminder_sent_at TIMESTAMPTZ DEFAULT NULL,
+  obstacle_reflection TEXT DEFAULT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

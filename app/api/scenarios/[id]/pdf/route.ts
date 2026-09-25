@@ -107,6 +107,10 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   <h2>Future Scenario</h2>
   ${renderText(scenario.scenario_text ?? '')}
 
+  ${scenario.obstacle_reflection ? `<h2>What&rsquo;s In The Way</h2>
+    ${scenario.wizard_answers?.obstacle ? `<blockquote>${escapeHtml(scenario.wizard_answers.obstacle)}</blockquote>` : ''}
+    ${renderText(scenario.obstacle_reflection)}` : ''}
+
   ${actionItems.length ? `<h2>Action Plan</h2>${actionItems.map(item => `
     <div class="action">
       <h3>${escapeHtml(item.title ?? '')}</h3>

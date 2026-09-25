@@ -11,6 +11,9 @@ export interface WizardAnswers {
   personalDetails?: PersonalDetails
   currentSituation: string
   futureVision: string
+  /** The person's own words for what gets in their way. Mental contrasting
+   *  only works when the obstacle is theirs, so this is never inferred. */
+  obstacle: string
   focusArea: string
   timeframeYears: number
 }
@@ -139,9 +142,12 @@ PERSON'S PROFILE:
 ${pd ? `- Personal context: ${pd}` : ''}
 - Current situation: ${answers.currentSituation}
 - Future vision: ${answers.futureVision}
+${answers.obstacle ? `- What they say gets in their way: ${answers.obstacle}` : ''}
 - Focus area: ${answers.focusArea}
 
 ${VOICE}
+
+The obstacle is context, not subject matter. Do not write artifacts about it. Let it keep the artifacts honest — the kind of achievement this person would reach having worked around that, not the kind that assumes it away.
 
 Generate EXACTLY 6 diverse future artifacts that could exist in ${timeline.targetLabel} for this person. Make them specific, evocative, and grounded in their actual situation and values. Mix different types. Keep each "content" to 1-2 punchy sentences — vivid but concise.
 
@@ -185,6 +191,7 @@ PERSON'S PROFILE:
 ${pd ? `- Personal context: ${pd}` : ''}
 - Current situation: ${answers.currentSituation}
 - Their vision: ${answers.futureVision}
+${answers.obstacle ? `- In their own words, what gets in their way: "${answers.obstacle}"` : ''}
 - Focus area: ${answers.focusArea}
 
 THE 3 FUTURE ARTIFACTS THEY CHOSE (these are windows into their future — build the scenario around them):
@@ -196,6 +203,7 @@ Respond with a JSON object ONLY:
 {
   "title": "A short evocative name for this scenario (max 6 words)",
   "category": "one of: Growth, Transformation, Stability, Adventure, Purpose",
+  "obstacle_reflection": "Two short paragraphs. See the rules below. Omit this field entirely if no obstacle was given.",
   "scenario_text": "A vivid 3-4 paragraph narrative in second person ('you') set in ${timeline.targetLabel}. Use **bold** for key achievements. Reference the actual artifacts by name. Include two short sections: **Horizon 1 (${timeline.midLabel}):** what has shifted by then, and **Horizon 2 (${timeline.targetLabel}):** where you've arrived. Be specific with places and names from their situation.",
   "action_plan": [
     {
@@ -207,6 +215,14 @@ Respond with a JSON object ONLY:
     }
   ]
 }
+
+Rules for "obstacle_reflection" (skip if no obstacle was given):
+- This is the one place the future and the obstacle are held side by side. Write it in second person, at most 120 words, in two short paragraphs.
+- Use the person's own words for the obstacle. Do not rename it, upgrade it into a condition, or speculate about where it comes from.
+- Say concretely where it is likely to meet them on the way to THIS future: which of the four action-plan moments, which month, which specific situation.
+- Do not solve it. No advice, no techniques, no reassurance, no "but you've got this". Do not promise it gets easier.
+- Do not soften the ending. Stop on the difficulty rather than resolving it — this section earns its place by being the part that does not comfort.
+- If the person named an external circumstance rather than something in themselves, take it at face value. Do not correct them or reach for a hidden inner cause.
 
 Rules:
 - action_plan: EXACTLY 4 items, in chronological order. Item 1 uses deadline ${timeline.deadlines[0]}, item 2 uses ${timeline.deadlines[1]}, item 3 uses ${timeline.deadlines[2]}, item 4 uses ${timeline.deadlines[3]}. Write each "timeline" as "By <that date>" — copied exactly.
