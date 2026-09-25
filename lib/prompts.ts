@@ -204,17 +204,32 @@ Respond with a JSON object ONLY:
   "title": "A short evocative name for this scenario (max 6 words)",
   "category": "one of: Growth, Transformation, Stability, Adventure, Purpose",
   "obstacle_reflection": "Two short paragraphs. See the rules below. Omit this field entirely if no obstacle was given.",
+  "coping_plan": "One sentence: when the obstacle shows up, what you do. See the rules below. Omit if no obstacle was given.",
   "scenario_text": "A vivid 3-4 paragraph narrative in second person ('you') set in ${timeline.targetLabel}. Use **bold** for key achievements. Reference the actual artifacts by name. Include two short sections: **Horizon 1 (${timeline.midLabel}):** what has shifted by then, and **Horizon 2 (${timeline.targetLabel}):** where you've arrived. Be specific with places and names from their situation.",
   "action_plan": [
     {
       "title": "Action item title",
       "description": "What to do and why",
+      "cue": "When <a concrete recurring occasion>, ...",
       "timeline": "By <one of the four deadlines above>",
       "priority": "high | medium | low",
       "sub_tasks": ["Concrete step 1", "Concrete step 2", "Concrete step 3"]
     }
   ]
 }
+
+Rules for "cue" on each action item:
+- A cue is the occasion the action actually happens on, not the date it is due. The deadline already carries the date; never repeat it here.
+- Write it in second person, starting with "When", at most 20 words. One occasion, not a routine to build.
+- Use an occasion that already exists in this person's described life — something they mentioned doing, somewhere they said they are, a rhythm they referred to. Do not invent commutes, offices, school runs, gym sessions, evening routines or weekends that are not in their own words.
+- If nothing they wrote gives you a reliable occasion, fall back to something they can set for themselves and will meet anyway: opening their calendar, the first working day of a month, sitting down to write the newsletter they mentioned.
+- Make it recognisable, not aspirational. "When you next open the manuscript file" beats "When you feel ready to write".
+
+Rules for "coping_plan" (skip if no obstacle was given):
+- One sentence, second person: when the obstacle shows up, what you do. Use their own words for the obstacle.
+- The response must be a specific, physical, small action that fits in under five minutes and can be done in the moment. Opening a file, writing one line, sending one message, setting a timer, standing up.
+- Not a change of mind. No "remind yourself that", no "notice the feeling", no reframing, no self-talk.
+- Do not reassure and do not promise it works. This is a prepared response, not a cure.
 
 Rules for "obstacle_reflection" (skip if no obstacle was given):
 - This is the one place the future and the obstacle are held side by side. Write it in second person, at most 120 words, in two short paragraphs.
@@ -238,7 +253,7 @@ Rules:
  * supposed to carry, so a stray model date never reaches the database.
  */
 export function repairActionPlan(
-  actionPlan: { title: string; description: string; timeline?: string; priority?: string; sub_tasks?: string[] }[] | undefined,
+  actionPlan: { title: string; description: string; cue?: string; timeline?: string; priority?: string; sub_tasks?: string[] }[] | undefined,
   timeline: Timeline
 ) {
   const permitted = allowedDates(timeline)

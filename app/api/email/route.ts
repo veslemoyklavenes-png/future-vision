@@ -13,15 +13,17 @@ export async function POST(req: NextRequest) {
 
   const { data: scenario } = await supabase
     .from('scenarios')
-    .select('title, category, scenario_text, obstacle_reflection, wizard_answers, action_items(*)')
+    .select('title, category, scenario_text, obstacle_reflection, coping_plan, wizard_answers, action_items(*)')
     .eq('id', scenarioId)
     .eq('user_id', user.id)
     .single()
 
   if (!scenario) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const actionItemsHtml = (scenario.action_items as { title: string; timeline: string; priority: string }[])
-    .map(item => `<li><strong>${item.title}</strong> – ${item.timeline} (${item.priority} priority)</li>`)
+  const actionItemsHtml = (scenario.action_items as { title: string; timeline: string; priority: string; cue?: string | null }[])
+    .map(item => `<li><strong>${item.title}</strong> – ${item.timeline} (${item.priority} priority)${
+      item.cue ? `<br><span style="color:#64748b;font-size:14px;">${item.cue}</span>` : ''
+    }</li>`)
     .join('')
 
   await resend.emails.send({
@@ -42,7 +44,8 @@ export async function POST(req: NextRequest) {
           <h2>What&rsquo;s In The Way</h2>
           <div style="border-left: 3px solid #cbd5e1; padding-left: 16px; font-size: 15px; line-height: 1.7; color: #475569;">
             ${scenario.obstacle_reflection.replace(/\n/g, '<br>')}
-          </div>` : ''}
+          </div>
+          ${scenario.coping_plan ? `<p style="font-size:15px;"><strong>If it shows up:</strong> ${scenario.coping_plan}</p>` : ''}` : ''}
 
         <h2>Action Plan</h2>
         <ul style="line-height: 2;">

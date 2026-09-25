@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS scenarios (
   reflection JSONB DEFAULT NULL,
   reminder_sent_at TIMESTAMPTZ DEFAULT NULL,
   obstacle_reflection TEXT DEFAULT NULL,
+  coping_plan TEXT DEFAULT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS action_items (
   timeline TEXT DEFAULT 'Next 30 days',
   priority TEXT DEFAULT 'medium',
   sub_tasks JSONB DEFAULT '[]',
+  cue TEXT DEFAULT NULL,
   completed BOOLEAN DEFAULT FALSE,
   completed_at TIMESTAMPTZ DEFAULT NULL,
   sort_order INTEGER DEFAULT 0

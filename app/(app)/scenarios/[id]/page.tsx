@@ -12,6 +12,7 @@ import ExportButtons from '@/components/ExportButtons'
 import ReflectionSection from '@/components/ReflectionSection'
 import Markdown from '@/components/Markdown'
 import DeleteScenarioButton from '@/components/DeleteScenarioButton'
+import CopingPlan from '@/components/CopingPlan'
 
 const artifactIcons: Record<string, React.ReactNode> = {
   'News Article': <Newspaper size={14} />,
@@ -88,6 +89,7 @@ export default async function ScenarioDetailPage({ params }: { params: { id: str
             </blockquote>
           )}
           <Markdown content={scenario.obstacle_reflection} />
+          <CopingPlan scenarioId={scenario.id} value={scenario.coping_plan ?? null} />
         </div>
       )}
 

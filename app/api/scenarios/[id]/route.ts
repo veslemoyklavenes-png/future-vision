@@ -17,6 +17,31 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json(scenario)
 }
 
+const MAX_COPING_PLAN_LENGTH = 600
+
+/** Only the person's own editable fields. Everything else is regenerated. */
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const body = await req.json()
+  if (typeof body.coping_plan !== 'string') {
+    return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
+  }
+
+  const plan = body.coping_plan.trim().slice(0, MAX_COPING_PLAN_LENGTH)
+
+  const { error } = await supabase
+    .from('scenarios')
+    .update({ coping_plan: plan.length > 0 ? plan : null })
+    .eq('id', params.id)
+    .eq('user_id', user.id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
+
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

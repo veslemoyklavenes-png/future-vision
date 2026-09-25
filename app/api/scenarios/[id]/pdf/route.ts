@@ -26,6 +26,7 @@ function renderText(raw: string) {
 interface ActionItem {
   title: string
   description: string
+  cue?: string | null
   timeline: string
   priority: string
   sub_tasks: string[]
@@ -109,13 +110,15 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   ${scenario.obstacle_reflection ? `<h2>What&rsquo;s In The Way</h2>
     ${scenario.wizard_answers?.obstacle ? `<blockquote>${escapeHtml(scenario.wizard_answers.obstacle)}</blockquote>` : ''}
-    ${renderText(scenario.obstacle_reflection)}` : ''}
+    ${renderText(scenario.obstacle_reflection)}
+    ${scenario.coping_plan ? `<p class="line"><strong>If it shows up:</strong> ${escapeHtml(scenario.coping_plan)}</p>` : ''}` : ''}
 
   ${actionItems.length ? `<h2>Action Plan</h2>${actionItems.map(item => `
     <div class="action">
       <h3>${escapeHtml(item.title ?? '')}</h3>
       <div class="line">${escapeHtml(item.timeline ?? '')} · Priority: ${escapeHtml(item.priority ?? '')}</div>
       <p>${escapeHtml(item.description ?? '')}</p>
+      ${item.cue ? `<p class="line"><strong>The moment:</strong> ${escapeHtml(item.cue)}</p>` : ''}
       ${item.sub_tasks?.length ? `<ul>${item.sub_tasks.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>` : ''}
     </div>`).join('')}` : ''}
 

@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import EditableLine from '@/components/EditableLine'
 
 interface ActionItem {
   id: string
@@ -14,6 +15,7 @@ interface ActionItem {
   priority: string
   sub_tasks: string[]
   completed: boolean
+  cue: string | null
 }
 
 export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId: string }) {
@@ -21,6 +23,16 @@ export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId:
 
   const completed = localItems.filter(i => i.completed).length
   const pct = Math.round((completed / localItems.length) * 100)
+
+  async function saveCue(itemId: string, cue: string) {
+    const res = await fetch(`/api/action-items/${itemId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cue }),
+    })
+    if (!res.ok) throw new Error('Save failed')
+    setLocalItems(prev => prev.map(i => (i.id === itemId ? { ...i, cue: cue || null } : i)))
+  }
 
   async function toggle(itemId: string, current: boolean) {
     setLocalItems(prev => prev.map(i => i.id === itemId ? { ...i, completed: !current } : i))
@@ -56,6 +68,19 @@ export default function ActionPlan({ items }: { items: ActionItem[]; scenarioId:
                 {item.title}
               </h3>
               <p className="text-sm text-ink-muted mb-2">{item.description}</p>
+
+              <div className="mb-2 rounded-lg bg-sage-light/30 px-3 py-2">
+                <p className="mb-0.5 text-[11px] font-medium uppercase tracking-wide text-sage-deep">
+                  The moment
+                </p>
+                <EditableLine
+                  value={item.cue}
+                  emptyLabel="Add the moment this actually happens"
+                  placeholder="When you sit down with coffee on Tuesday morning…"
+                  onSave={next => saveCue(item.id, next)}
+                  className="text-sm text-ink-muted"
+                />
+              </div>
               <div className="flex flex-wrap items-start gap-2 mb-2">
                 {/* Generated timelines are full sentences, so this badge has to
                     wrap and grow instead of staying a fixed-height pill. */}
